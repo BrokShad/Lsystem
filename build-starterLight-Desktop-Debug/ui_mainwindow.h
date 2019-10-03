@@ -36,6 +36,7 @@ public:
     QVBoxLayout *verticalLayout;
     QPushButton *pushButton_chargement;
     QPushButton *pushButton_generer;
+    QPushButton *pushButton;
     QSpacerItem *verticalSpacer;
     MeshViewerWidget *displayWidget;
     QMenuBar *menuBar;
@@ -77,6 +78,11 @@ public:
 
         verticalLayout->addWidget(pushButton_generer);
 
+        pushButton = new QPushButton(widget_2);
+        pushButton->setObjectName(QStringLiteral("pushButton"));
+
+        verticalLayout->addWidget(pushButton);
+
         verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout->addItem(verticalSpacer);
@@ -111,6 +117,7 @@ public:
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", Q_NULLPTR));
         pushButton_chargement->setText(QApplication::translate("MainWindow", "Charger OBJ", Q_NULLPTR));
         pushButton_generer->setText(QApplication::translate("MainWindow", "G\303\251n\303\251rer mesh", Q_NULLPTR));
+        pushButton->setText(QApplication::translate("MainWindow", "G\303\251n\303\251rer mot", Q_NULLPTR));
     } // retranslateUi
 
 };

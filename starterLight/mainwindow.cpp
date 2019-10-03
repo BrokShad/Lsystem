@@ -315,4 +315,29 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::generer_mot()
+{
+    QString mottmp;
+    for (int i = 0; i < mot.size() ; i++){
+        switch(mot.at(i).unicode()){
+        case 'F' :
+            mottmp.append("FF");
+            break ;
+        case 'X' :
+            mottmp.append("F[+X]F[-X]+X");
+            break ;
+        default :
+            mottmp.append(mot.at(i));
+            break;
+        }
+    }
+    mot = mottmp;
+    qDebug() << mot ;
+}
 
+
+
+void MainWindow::on_pushButton_clicked()
+{
+    generer_mot();
+}
