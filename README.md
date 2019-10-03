@@ -5,7 +5,7 @@ A : Créé 3 feuilles
 F : Avance d'une cerainte distance  
 L : Une feuille
 / et \ : roule droite et gauche  
-+ et - : tourne droite et gauche  
+"+" et - : tourne droite et gauche  
 & et ^ : pointe haut ou bas  
 | : tourne a 180°  
 J : ajoute un point a la pos actuelle  
