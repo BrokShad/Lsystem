@@ -341,3 +341,19 @@ void MainWindow::on_pushButton_clicked()
 {
     generer_mot();
 }
+
+
+//Fonctions erwan
+
+void point_to_vertex(MyMesh _mesh, float x, float y, float z)
+{
+     _mesh.add_vertex(MyMesh::Point(x, y,  z));
+}
+
+void points_to_vertex(MyMesh _mesh, QVector<float> points)
+{
+    for(int i = 0 ; i < points.size() ; i+=3)
+    {
+
+    }
+}
