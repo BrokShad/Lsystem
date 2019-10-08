@@ -34,7 +34,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    QString mot = "X";
+    QString mot = "A";
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void generer_mot();
