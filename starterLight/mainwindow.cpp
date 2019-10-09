@@ -320,11 +320,17 @@ void MainWindow::generer_mot()
     QString mottmp;
     for (int i = 0; i < mot.size() ; i++){
         switch(mot.at(i).unicode()){
-        case 'F' :
-            mottmp.append("FF");
+        case 'A' :
+            mottmp.append("[&FL!A]/////’[&FL!A]///////’[&FL!A]");
             break ;
-        case 'X' :
-            mottmp.append("F[+X]F[-X]+X");
+        case 'F' :
+            mottmp.append("S ///// F");
+            break ;
+        case 'S' :
+            mottmp.append("FL");
+            break ;
+        case 'L' :
+            mottmp.append("[’’’∧∧{-f+f+f-|-f+f+f}]");
             break ;
         default :
             mottmp.append(mot.at(i));
@@ -340,4 +346,20 @@ void MainWindow::generer_mot()
 void MainWindow::on_pushButton_clicked()
 {
     generer_mot();
+}
+
+
+//Fonctions erwan
+
+void point_to_vertex(MyMesh _mesh, float x, float y, float z)
+{
+     _mesh.add_vertex(MyMesh::Point(x, y,  z));
+}
+
+void points_to_vertex(MyMesh _mesh, QVector<float> points)
+{
+    for(int i = 0 ; i < points.size() ; i+=3)
+    {
+
+    }
 }

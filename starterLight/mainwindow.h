@@ -34,13 +34,12 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    QString mot = "X";
+    QString mot = "A";
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void generer_mot();
     void displayMesh(MyMesh *_mesh, bool isTemperatureMap = false, float mapRange = -1);
     void resetAllColorsAndThickness(MyMesh* _mesh);
-
 private slots:
     void on_pushButton_chargement_clicked();
 
