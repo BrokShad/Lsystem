@@ -321,10 +321,10 @@ void MainWindow::generer_mot()
     for (int i = 0; i < mot.size() ; i++){
         switch(mot.at(i).unicode()){
         case 'A' :
-            mottmp.append("[&FL!A]/////’[&FL!A]///////’[&FL!A]");
+            mottmp.append("[&FL!A]DDDDD’[&FL!A]DDDDD’[&FL!A]");
             break ;
         case 'F' :
-            mottmp.append("S ///// F");
+            mottmp.append("S DDDDD F");
             break ;
         case 'S' :
             mottmp.append("FL");

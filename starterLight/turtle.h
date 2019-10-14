@@ -3,11 +3,11 @@
 #include <OpenMesh/Core/IO/MeshIO.hh>
 #include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
 #include "mainwindow.h"
+#include <QStack>
 
 class Turtle
 {
 public:
-    Turtle();
     void translateString(QString mot);
     void translateChar(QChar c);
 
@@ -23,10 +23,14 @@ public:
     void addWeigth(float w);
 
     Turtle operator =(Turtle t){
-        return t;
+        this->angleX = t.angleX;
+        this->angleY = t.angleY;
+        this->angleZ = t.angleZ;
+        this->dist = t.dist;
+        this->dL = t.dL;
+        this->w = t.w;
+        return *this;
     }
-
-private:
     MyMesh::Point coord;
     float angleX;
     float angleY;
@@ -34,6 +38,9 @@ private:
     float dist;
     float dL = 1;
     float w = 1;
+    QStack<Turtle> pile;
+
+private:
 };
 
 #endif // TURTLE_H

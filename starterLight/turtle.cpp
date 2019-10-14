@@ -1,9 +1,6 @@
 #include "turtle.h"
 
-Turtle::Turtle()
-{
 
-}
 
 void Turtle::translateString(QString mot)
 {
@@ -12,7 +9,7 @@ void Turtle::translateString(QString mot)
 
 void Turtle::translateChar(QChar c)
 {
-    switch (c) {
+    switch (c.unicode()) {
     case 'A':
         create3leafs();
         break;
@@ -53,9 +50,14 @@ void Turtle::translateChar(QChar c)
         addWeigth(w);
         break;
     case '[':
-        //TODO crée une turtle a partir de la et la mettre dans un vector (?)
+    {
+        pile.push(*this);
         break;
-
+    }
+    case ']':
+        pile.pop();
+        this->operator =(pile.top());
+        break;
     default:
         break;
     }
