@@ -35,6 +35,10 @@ class MainWindow : public QMainWindow
 
 public:
     QString mot = "A";
+    QString caseA = "[&FL!A]DDDDD’[&FL!A]DDDDD’[&FL!A]";
+    QString caseF = "S DDDDD F";
+    QString caseS = "FL";
+    QString caseL = "[’’’∧∧{-f+f+f-|-f+f+f}]";
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void generer_mot();
@@ -46,6 +50,16 @@ private slots:
     void on_pushButton_generer_clicked();
 
     void on_pushButton_clicked();
+
+    void on_lineEditA_textEdited(const QString &arg1);
+
+    void on_lineEditF_textEdited(const QString &arg1);
+
+    void on_lineEditS_textEdited(const QString &arg1);
+
+    void on_lineEditL_textEdited(const QString &arg1);
+
+    void on_pushButton_Reset_clicked();
 
 private:
 

@@ -321,16 +321,16 @@ void MainWindow::generer_mot()
     for (int i = 0; i < mot.size() ; i++){
         switch(mot.at(i).unicode()){
         case 'A' :
-            mottmp.append("[&FL!A]DDDDD’[&FL!A]DDDDD’[&FL!A]");
+            mottmp.append(caseA);
             break ;
         case 'F' :
-            mottmp.append("S DDDDD F");
+            mottmp.append(caseF);
             break ;
         case 'S' :
-            mottmp.append("FL");
+            mottmp.append(caseS);
             break ;
         case 'L' :
-            mottmp.append("[’’’∧∧{-f+f+f-|-f+f+f}]");
+            mottmp.append(caseL);
             break ;
         default :
             mottmp.append(mot.at(i));
@@ -348,6 +348,30 @@ void MainWindow::on_pushButton_clicked()
     generer_mot();
 }
 
+void MainWindow::on_lineEditA_textEdited(const QString &arg1)
+{
+    caseA = arg1;
+}
+
+void MainWindow::on_lineEditF_textEdited(const QString &arg1)
+{
+    caseF = arg1;
+}
+
+void MainWindow::on_lineEditS_textEdited(const QString &arg1)
+{
+    caseS = arg1;
+}
+
+void MainWindow::on_lineEditL_textEdited(const QString &arg1)
+{
+    caseL = arg1;
+}
+
+void MainWindow::on_pushButton_Reset_clicked()
+{
+    mot = "A";
+}
 
 //Fonctions erwan
 
@@ -363,3 +387,5 @@ void points_to_vertex(MyMesh _mesh, QVector<float> points)
 
     }
 }
+
+
