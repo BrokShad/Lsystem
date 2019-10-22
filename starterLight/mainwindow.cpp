@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "turtle.h"
 
 
 /* **** début de la partie boutons et IHM **** */
@@ -362,4 +363,10 @@ void points_to_vertex(MyMesh _mesh, QVector<float> points)
     {
 
     }
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    Turtle t = Turtle(0,0,0,0,0,0,10);
+    t.translateString(mot,&mesh);
 }
