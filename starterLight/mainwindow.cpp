@@ -43,50 +43,6 @@ void MainWindow::on_pushButton_generer_clicked()
 
     // on construit des faces à partir des sommets
 
-    std::vector<MyMesh::VertexHandle> uneNouvelleFace;
-
-    uneNouvelleFace.clear();
-    uneNouvelleFace.push_back(sommets[0]);
-    uneNouvelleFace.push_back(sommets[1]);
-    uneNouvelleFace.push_back(sommets[2]);
-    uneNouvelleFace.push_back(sommets[3]);
-    mesh.add_face(uneNouvelleFace);
-
-    uneNouvelleFace.clear();
-    uneNouvelleFace.push_back(sommets[7]);
-    uneNouvelleFace.push_back(sommets[6]);
-    uneNouvelleFace.push_back(sommets[5]);
-    uneNouvelleFace.push_back(sommets[4]);
-    mesh.add_face(uneNouvelleFace);
-
-    uneNouvelleFace.clear();
-    uneNouvelleFace.push_back(sommets[1]);
-    uneNouvelleFace.push_back(sommets[0]);
-    uneNouvelleFace.push_back(sommets[4]);
-    uneNouvelleFace.push_back(sommets[5]);
-    mesh.add_face(uneNouvelleFace);
-
-    uneNouvelleFace.clear();
-    uneNouvelleFace.push_back(sommets[2]);
-    uneNouvelleFace.push_back(sommets[1]);
-    uneNouvelleFace.push_back(sommets[5]);
-    uneNouvelleFace.push_back(sommets[6]);
-    mesh.add_face(uneNouvelleFace);
-
-    uneNouvelleFace.clear();
-    uneNouvelleFace.push_back(sommets[3]);
-    uneNouvelleFace.push_back(sommets[2]);
-    uneNouvelleFace.push_back(sommets[6]);
-    uneNouvelleFace.push_back(sommets[7]);
-    mesh.add_face(uneNouvelleFace);
-
-    uneNouvelleFace.clear();
-    uneNouvelleFace.push_back(sommets[0]);
-    uneNouvelleFace.push_back(sommets[3]);
-    uneNouvelleFace.push_back(sommets[7]);
-    uneNouvelleFace.push_back(sommets[4]);
-    mesh.add_face(uneNouvelleFace);
-
     mesh.update_normals();
 
     // initialisation des couleurs et épaisseurs (sommets et arêtes) du mesh
@@ -322,16 +278,16 @@ void MainWindow::generer_mot()
     for (int i = 0; i < mot.size() ; i++){
         switch(mot.at(i).unicode()){
         case 'A' :
-            mottmp.append("[&FL!A]DDDDD’[&FL!A]DDDDD’[&FL!A]");
+            mottmp.append(caseA);
             break ;
         case 'F' :
-            mottmp.append("S DDDDD F");
+            mottmp.append(caseF);
             break ;
         case 'S' :
-            mottmp.append("FL");
+            mottmp.append(caseS);
             break ;
         case 'L' :
-            mottmp.append("[’’’∧∧{-f+f+f-|-f+f+f}]");
+            mottmp.append(caseL);
             break ;
         default :
             mottmp.append(mot.at(i));
@@ -349,24 +305,127 @@ void MainWindow::on_pushButton_clicked()
     generer_mot();
 }
 
+void MainWindow::on_lineEditA_textEdited(const QString &arg1)
+{
+    caseA = arg1;
+}
+
+void MainWindow::on_lineEditF_textEdited(const QString &arg1)
+{
+    caseF = arg1;
+}
+
+void MainWindow::on_lineEditS_textEdited(const QString &arg1)
+{
+    caseS = arg1;
+}
+
+void MainWindow::on_lineEditL_textEdited(const QString &arg1)
+{
+    caseL = arg1;
+}
+
+void MainWindow::on_pushButton_Reset_clicked()
+{
+    mot = "A";
+}
 
 //Fonctions erwan
 
-void point_to_vertex(MyMesh _mesh, float x, float y, float z)
+MyMesh::VertexHandle point_to_vertex(MyMesh _mesh, float x, float y, float z)
 {
-     _mesh.add_vertex(MyMesh::Point(x, y,  z));
+     return _mesh.add_vertex(MyMesh::Point(x, y,  z));
 }
 
-void points_to_vertex(MyMesh _mesh, QVector<float> points)
+QVector<MyMesh::VertexHandle> points_into_mesh(MyMesh _mesh, QVector<float> points)
 {
+    QVector<MyMesh::VertexHandle> vertices_vector;
     for(int i = 0 ; i < points.size() ; i+=3)
     {
+        vertices_vector.append(point_to_vertex(_mesh, points.data()[i], points.data()[i+1], points.data()[i+2]));
+    }
+
+    return vertices_vector;
+}
+
+
+/*
+ *
+ * http://gilles.dubois10.free.fr/geometrie_affine/espacereglees.html
+ *
+ */
+
+QVector<float> parametric_frustum_point(float h, float r, float s, float t)
+{
+    QVector<float> point;
+    float x = r * cos(t);
+    float y = r * sin(t);
+    float z = h*s; //hauteur * paramètre s (s = 0, z = 0, s = 1, z =0)
+
+    point.push_back(x);
+    point.push_back(y);
+    point.push_back(z);
+
+    return point;
+}
+
+
+//Si coef_radius == 1 alors on dessine un cylindre, sinon si coef_radius == 0 alors on dessine un cône, sinon entre ]0, 1[ un frustum (tronc de cone)
+QVector<float> parametric_frustum(float high, float radius, float coef_radius, float step_r, float step_s, float step_t)
+{
+    QVector<float> frustum_points;
+    float r = radius;
+    float min_radius= radius*coef_radius;
+
+    for(float s = 0; s <= 1 ; s += step_s)
+    {
+        for(float t = 0; t <= 1; t+= step_t)
+        {
+           frustum_points.append(parametric_frustum_point(high, r, s, t));
+        }
+
+        if(r > min_radius)
+        {
+            r -=step_r;
+        }
 
     }
+    return frustum_points;
 }
+
+
+
+void frustum_into_mesh(float xA, float yA, float zA,
+                       float xB, float yB, float zB,
+                       float radius, float coef_radius,
+                       float step_r, float step_s, float step_t)
+{
+    MyMesh _mesh;
+    float x = xA - xB;
+    float y = yA - yB;
+    float z = zA - zB;
+
+    float high_AB = sqrt(x*x + y*y + z*z);
+
+    QVector<float> frustum_points = parametric_frustum(high_AB, radius, coef_radius, step_r, step_s, step_t);
+
+    QVector<MyMesh::VertexHandle> vertices_vec = points_into_mesh(_mesh, frustum_points);
+    //FAIRE LES FOCKING FAYCE, CARIBOU TABERNAK
+
+}
+
+
 
 void MainWindow::on_pushButton_2_clicked()
 {
-    Turtle t = Turtle(0,0,0,0,0,0,10);
+    Turtle t = Turtle(0,0,0,22,15,20,1);
     t.translateString(mot,&mesh);
+    mesh.update_normals();
+
+    // initialisation des couleurs et épaisseurs (sommets et arêtes) du mesh
+    resetAllColorsAndThickness(&mesh);
+
+
+    // on affiche le maillage
+    displayMesh(&mesh);
 }

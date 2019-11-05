@@ -1,10 +1,11 @@
 #include "turtle.h"
+#include <QDebug>
 
 Turtle::Turtle(float x_, float y_, float z_, float angleX_, float angleY_, float angleZ_, float dist_)
 {
-    x = x_;
-    y = y_;
-    z = z_;
+    coord[0] = x_;
+    coord[1] = y_;
+    coord[2] = z_;
     angleX = angleX_;
     angleY = angleY_;
     angleZ = angleZ_;
@@ -15,8 +16,9 @@ void Turtle::translateString(QString mot, MyMesh *mesh)
 {
     pile.push_back(*this);
     for (int i = 0; i < mot.size() ; i++){
-        translateChar(i,mesh);
+        translateChar(mot.at(i).unicode(),mesh);
     }
+
 }
 
 void Turtle::translateChar(QChar c,MyMesh *mesh)
@@ -27,6 +29,7 @@ void Turtle::translateChar(QChar c,MyMesh *mesh)
         break;
     case 'F':
         moveForward();
+        addPoint(mesh);
         break;
     case 'L':
         createLeaf();
@@ -61,8 +64,8 @@ void Turtle::translateChar(QChar c,MyMesh *mesh)
         break;
     }
     case ']':
-        pile.pop_back();
         this->equal(pile.back());
+        pile.pop_back();
         break;
     default:
         break;
@@ -76,9 +79,9 @@ void Turtle::create3leafs()
 
 void Turtle::moveForward()
 {
-    float newx = dist * sin(angleX) * cos(angleY);
-    float newy = dist * sin(angleX)* sin(angleY);
-    float newz = dist * cos(angleY);
+    float newx = (dist * sin(angleX) * cos(angleY))+coord[0];
+    float newy = (dist * sin(angleX)* sin(angleY))+coord[1];
+    float newz = (dist * cos(angleY))+coord[2];
     MyMesh::Point p = MyMesh::Point(newx,newy,newz);
     coord = p;
 }
@@ -114,8 +117,9 @@ void Turtle::turn180()
 
 void Turtle::addPoint(MyMesh *mesh)
 {
-    MyMesh::VertexHandle vh;
-    vh = mesh->add_vertex(MyMesh::Point(coord));
+    vertList.push_back( mesh->add_vertex(MyMesh::Point(coord)));
+    qDebug() << "angleX " << angleX << " angleY " << angleY << " angleZ " << angleZ;
+    qDebug() << " x " << coord[0] << " y " << coord[1] << " z " << coord[2] << endl;;
 }
 
 void Turtle::multDist(float dL_)
@@ -130,6 +134,9 @@ void Turtle::addWeigth(float w_)
 
 Turtle Turtle::equal(Turtle t)
 {
+    this->coord[0] = t.coord[0];
+    this->coord[1] = t.coord[1];
+    this->coord[2] = t.coord[2];
     this->angleX = t.angleX;
     this->angleY = t.angleY;
     this->angleZ = t.angleZ;

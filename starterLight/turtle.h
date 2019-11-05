@@ -5,6 +5,7 @@
 #include "mainwindow.h"
 #include <QStack>
 #include <list>
+#include <QVector>
 
 class Turtle
 {
@@ -27,11 +28,12 @@ public:
     Turtle equal(Turtle t);
 
 private:
+    QVector<MyMesh::VertexHandle> vertList;
     float x;
     float y;
     float z;
     MyMesh::Point coord = MyMesh::Point(x,y,z);
-    float valAngle = 20;
+    float valAngle = 0.5;
     float angleX;
     float angleY;
     float angleZ;
