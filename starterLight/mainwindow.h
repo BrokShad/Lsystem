@@ -40,6 +40,11 @@ public:
     void generer_mot();
     void displayMesh(MyMesh *_mesh, bool isTemperatureMap = false, float mapRange = -1);
     void resetAllColorsAndThickness(MyMesh* _mesh);
+    void frustum_into_mesh(float xA, float yA, float zA,
+                           float xB, float yB, float zB,
+                           float radius, float coef_radius,
+                           float step_r, float step_s, float step_t);
+
 private slots:
     void on_pushButton_chargement_clicked();
 
