@@ -4,12 +4,15 @@
 #include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
 #include "mainwindow.h"
 #include <QStack>
+#include <list>
+#include <QVector>
 
 class Turtle
 {
 public:
-    void translateString(QString mot);
-    void translateChar(QChar c);
+    Turtle(float x, float y, float z, float angleX_, float angleY_, float angleZ_, float dist_);
+    void translateString(QString mot, MyMesh *mesh);
+    void translateChar(QChar c, MyMesh *mesh);
 
     void create3leafs();
     void moveForward();
@@ -18,29 +21,25 @@ public:
     void turn(QChar c);
     void point(QChar c);
     void turn180();
-    void addPoint();
+    void addPoint(MyMesh *mesh);
     void multDist(float dL);
     void addWeigth(float w);
+    std::list<Turtle> pile;
+    Turtle equal(Turtle t);
 
-    Turtle operator =(Turtle t){
-        this->angleX = t.angleX;
-        this->angleY = t.angleY;
-        this->angleZ = t.angleZ;
-        this->dist = t.dist;
-        this->dL = t.dL;
-        this->w = t.w;
-        return *this;
-    }
-    MyMesh::Point coord;
+private:
+    QVector<MyMesh::VertexHandle> vertList;
+    float x;
+    float y;
+    float z;
+    MyMesh::Point coord = MyMesh::Point(x,y,z);
+    float valAngle = 0.5;
     float angleX;
     float angleY;
     float angleZ;
     float dist;
     float dL = 1;
     float w = 1;
-    QStack<Turtle> pile;
-
-private:
 };
 
 #endif // TURTLE_H

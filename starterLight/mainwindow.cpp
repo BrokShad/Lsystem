@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "turtle.h"
 
 
 /* **** début de la partie boutons et IHM **** */
@@ -29,62 +30,9 @@ void MainWindow::on_pushButton_generer_clicked()
     MyMesh mesh;
 
     // on construit une liste de sommets
-    MyMesh::VertexHandle sommets[8];
-    sommets[0] = mesh.add_vertex(MyMesh::Point(-1, -1,  1));
-    sommets[1] = mesh.add_vertex(MyMesh::Point( 1, -1,  1));
-    sommets[2] = mesh.add_vertex(MyMesh::Point( 1,  1,  1));
-    sommets[3] = mesh.add_vertex(MyMesh::Point(-1,  1,  1));
-    sommets[4] = mesh.add_vertex(MyMesh::Point(-1, -1, -1));
-    sommets[5] = mesh.add_vertex(MyMesh::Point( 1, -1, -1));
-    sommets[6] = mesh.add_vertex(MyMesh::Point( 1,  1, -1));
-    sommets[7] = mesh.add_vertex(MyMesh::Point(-1,  1, -1));
-
-
-    // on construit des faces à partir des sommets
-
-    std::vector<MyMesh::VertexHandle> newFace;
-
-    newFace.clear();
-    newFace.push_back(sommets[0]);
-    newFace.push_back(sommets[1]);
-    newFace.push_back(sommets[2]);
-    newFace.push_back(sommets[3]);
-    mesh.add_face(newFace);
-
-    newFace.clear();
-    newFace.push_back(sommets[7]);
-    newFace.push_back(sommets[6]);
-    newFace.push_back(sommets[5]);
-    newFace.push_back(sommets[4]);
-    mesh.add_face(newFace);
-
-    newFace.clear();
-    newFace.push_back(sommets[1]);
-    newFace.push_back(sommets[0]);
-    newFace.push_back(sommets[4]);
-    newFace.push_back(sommets[5]);
-    mesh.add_face(newFace);
-
-    newFace.clear();
-    newFace.push_back(sommets[2]);
-    newFace.push_back(sommets[1]);
-    newFace.push_back(sommets[5]);
-    newFace.push_back(sommets[6]);
-    mesh.add_face(newFace);
-
-    newFace.clear();
-    newFace.push_back(sommets[3]);
-    newFace.push_back(sommets[2]);
-    newFace.push_back(sommets[6]);
-    newFace.push_back(sommets[7]);
-    mesh.add_face(newFace);
-
-    newFace.clear();
-    newFace.push_back(sommets[0]);
-    newFace.push_back(sommets[3]);
-    newFace.push_back(sommets[7]);
-    newFace.push_back(sommets[4]);
-    mesh.add_face(newFace);
+    mesh = frustum_into_mesh(-1, -4, 0, 3, 2, 0,
+                      4, 0,
+                      0.01f, 0.1f, 0.04f);
 
     mesh.update_normals();
 
@@ -321,16 +269,16 @@ void MainWindow::generer_mot()
     for (int i = 0; i < mot.size() ; i++){
         switch(mot.at(i).unicode()){
         case 'A' :
-            mottmp.append("[&FL!A]DDDDD’[&FL!A]DDDDD’[&FL!A]");
+            mottmp.append(caseA);
             break ;
         case 'F' :
-            mottmp.append("S DDDDD F");
+            mottmp.append(caseF);
             break ;
         case 'S' :
-            mottmp.append("FL");
+            mottmp.append(caseS);
             break ;
         case 'L' :
-            mottmp.append("[’’’∧∧{-f+f+f-|-f+f+f}]");
+            mottmp.append(caseL);
             break ;
         default :
             mottmp.append(mot.at(i));
@@ -348,6 +296,30 @@ void MainWindow::on_pushButton_clicked()
     generer_mot();
 }
 
+void MainWindow::on_lineEditA_textEdited(const QString &arg1)
+{
+    caseA = arg1;
+}
+
+void MainWindow::on_lineEditF_textEdited(const QString &arg1)
+{
+    caseF = arg1;
+}
+
+void MainWindow::on_lineEditS_textEdited(const QString &arg1)
+{
+    caseS = arg1;
+}
+
+void MainWindow::on_lineEditL_textEdited(const QString &arg1)
+{
+    caseL = arg1;
+}
+
+void MainWindow::on_pushButton_Reset_clicked()
+{
+    mot = "A";
+}
 
 //Fonctions erwan
 
@@ -417,7 +389,7 @@ QVector<float> parametric_frustum(float high, float radius, float coef_radius, f
 
 
 
-void MainWindow::frustum_into_mesh(float xA, float yA, float zA,
+MyMesh MainWindow::frustum_into_mesh(float xA, float yA, float zA,
                        float xB, float yB, float zB,
                        float radius, float coef_radius,
                        float step_r, float step_s, float step_t)
@@ -428,26 +400,52 @@ void MainWindow::frustum_into_mesh(float xA, float yA, float zA,
     float z = zB - zA;
 
     float high_AB = sqrt(x*x + y*y + z*z);
-
     QVector<float> frustum_points = parametric_frustum(high_AB, radius, coef_radius, step_r, step_s, step_t);
 
     QVector<MyMesh::VertexHandle> vertices_vec = points_into_mesh(_mesh, frustum_points);
-
     std::vector<MyMesh::VertexHandle> newFace;
 
-    int nS = int(1.f/step_s);
-    int mR = int(1.f/step_r);
-
+    float nS = 1.f/step_s;
+    float mR = 1.f/step_r;
+    qDebug() << vertices_vec.count() <<endl;
     for(int h = 1 ; h < nS; h++)
     {
         for(int p = 1 ; p < mR; p++)
             {
-            newFace.clear();
-            newFace.push_back(vertices_vec[h*mR+p]);
-            newFace.push_back(vertices_vec[h*mR+(p-1)]);
-            newFace.push_back(vertices_vec[(h-1)*mR+(p-1)]);
-            newFace.push_back(vertices_vec[h*mR+p]);
-            _mesh.add_face(newFace);
-        }
+                qDebug() << "h*mR+p" << h*mR+p << endl;
+                //1er demi-carré
+                //newFace.clear();
+                newFace.push_back(vertices_vec[h*mR+p]);
+                newFace.push_back(vertices_vec[h*mR+(p-1)]);
+                newFace.push_back(vertices_vec[(h-1)*mR+(p-1)]);
+                newFace.push_back(vertices_vec[h*mR+p]);
+                _mesh.add_face(newFace);
+
+                //2ème demi-carré
+                newFace.clear();
+                newFace.push_back(vertices_vec[h*mR+p]);
+                newFace.push_back(vertices_vec[(h-1)*mR+(p-1)]);
+                newFace.push_back(vertices_vec[(h-1)*mR+p]);
+                newFace.push_back(vertices_vec[h*mR+p]);
+                _mesh.add_face(newFace);
+            }
     }
+
+    return _mesh;
+}
+
+
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    Turtle t = Turtle(0,0,0,22,15,20,1);
+    t.translateString(mot,&mesh);
+    mesh.update_normals();
+
+    // initialisation des couleurs et épaisseurs (sommets et arêtes) du mesh
+    resetAllColorsAndThickness(&mesh);
+
+
+    // on affiche le maillage
+    displayMesh(&mesh);
 }

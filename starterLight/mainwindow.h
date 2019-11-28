@@ -35,12 +35,16 @@ class MainWindow : public QMainWindow
 
 public:
     QString mot = "A";
+    QString caseA = "[&FL!A]DDDDD’[&FL!A]DDDDD’[&FL!A]";
+    QString caseF = "S DDDDD F";
+    QString caseS = "FL";
+    QString caseL = "[’’’∧∧{-f+f+f-|-f+f+f}]";
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void generer_mot();
     void displayMesh(MyMesh *_mesh, bool isTemperatureMap = false, float mapRange = -1);
     void resetAllColorsAndThickness(MyMesh* _mesh);
-    void frustum_into_mesh(float xA, float yA, float zA,
+    MyMesh frustum_into_mesh(float xA, float yA, float zA,
                            float xB, float yB, float zB,
                            float radius, float coef_radius,
                            float step_r, float step_s, float step_t);
@@ -51,6 +55,18 @@ private slots:
     void on_pushButton_generer_clicked();
 
     void on_pushButton_clicked();
+
+    void on_lineEditA_textEdited(const QString &arg1);
+
+    void on_lineEditF_textEdited(const QString &arg1);
+
+    void on_lineEditS_textEdited(const QString &arg1);
+
+    void on_lineEditL_textEdited(const QString &arg1);
+
+    void on_pushButton_Reset_clicked();
+
+    void on_pushButton_2_clicked();
 
 private:
 
