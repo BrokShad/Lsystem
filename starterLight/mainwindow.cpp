@@ -30,18 +30,9 @@ void MainWindow::on_pushButton_generer_clicked()
     MyMesh mesh;
 
     // on construit une liste de sommets
-    MyMesh::VertexHandle sommets[8];
-    sommets[0] = mesh.add_vertex(MyMesh::Point(-1, -1,  1));
-    sommets[1] = mesh.add_vertex(MyMesh::Point( 1, -1,  1));
-    sommets[2] = mesh.add_vertex(MyMesh::Point( 1,  1,  1));
-    sommets[3] = mesh.add_vertex(MyMesh::Point(-1,  1,  1));
-    sommets[4] = mesh.add_vertex(MyMesh::Point(-1, -1, -1));
-    sommets[5] = mesh.add_vertex(MyMesh::Point( 1, -1, -1));
-    sommets[6] = mesh.add_vertex(MyMesh::Point( 1,  1, -1));
-    sommets[7] = mesh.add_vertex(MyMesh::Point(-1,  1, -1));
-
-
-    // on construit des faces à partir des sommets
+    mesh = frustum_into_mesh(-1, -4, 0, 3, 2, 0,
+                      4, 0,
+                      0.01f, 0.1f, 0.04f);
 
     mesh.update_normals();
 
@@ -370,16 +361,19 @@ QVector<float> parametric_frustum_point(float h, float r, float s, float t)
 }
 
 
-//Si coef_radius == 1 alors on dessine un cylindre, sinon si coef_radius == 0 alors on dessine un cône, sinon entre ]0, 1[ un frustum (tronc de cone)
+//Si coef_radius == 1 alors on dessine un cylindre,
+//sinon si coef_radius == 0 alors on dessine un cône
+//sinon entre ]0, 1[ un frustum (tronc de cone)
+
 QVector<float> parametric_frustum(float high, float radius, float coef_radius, float step_r, float step_s, float step_t)
 {
     QVector<float> frustum_points;
     float r = radius;
     float min_radius= radius*coef_radius;
 
-    for(float s = 0; s <= 1 ; s += step_s)
+    for(float s = 0; s <= 1 ; s += step_s) //hauteur
     {
-        for(float t = 0; t <= 1; t+= step_t)
+        for(float t = 0; t <= 1; t+= step_t) //point sur le cercle
         {
            frustum_points.append(parametric_frustum_point(high, r, s, t));
         }
@@ -395,23 +389,49 @@ QVector<float> parametric_frustum(float high, float radius, float coef_radius, f
 
 
 
-void frustum_into_mesh(float xA, float yA, float zA,
+MyMesh MainWindow::frustum_into_mesh(float xA, float yA, float zA,
                        float xB, float yB, float zB,
                        float radius, float coef_radius,
                        float step_r, float step_s, float step_t)
 {
     MyMesh _mesh;
-    float x = xA - xB;
-    float y = yA - yB;
-    float z = zA - zB;
+    float x = xB - xA;
+    float y = yB - yA;
+    float z = zB - zA;
 
     float high_AB = sqrt(x*x + y*y + z*z);
-
     QVector<float> frustum_points = parametric_frustum(high_AB, radius, coef_radius, step_r, step_s, step_t);
 
     QVector<MyMesh::VertexHandle> vertices_vec = points_into_mesh(_mesh, frustum_points);
-    //FAIRE LES FOCKING FAYCE, CARIBOU TABERNAK
+    std::vector<MyMesh::VertexHandle> newFace;
 
+    float nS = 1.f/step_s;
+    float mR = 1.f/step_r;
+    qDebug() << vertices_vec.count() <<endl;
+    for(int h = 1 ; h < nS; h++)
+    {
+        for(int p = 1 ; p < mR; p++)
+            {
+                qDebug() << "h*mR+p" << h*mR+p << endl;
+                //1er demi-carré
+                //newFace.clear();
+                newFace.push_back(vertices_vec[h*mR+p]);
+                newFace.push_back(vertices_vec[h*mR+(p-1)]);
+                newFace.push_back(vertices_vec[(h-1)*mR+(p-1)]);
+                newFace.push_back(vertices_vec[h*mR+p]);
+                _mesh.add_face(newFace);
+
+                //2ème demi-carré
+                newFace.clear();
+                newFace.push_back(vertices_vec[h*mR+p]);
+                newFace.push_back(vertices_vec[(h-1)*mR+(p-1)]);
+                newFace.push_back(vertices_vec[(h-1)*mR+p]);
+                newFace.push_back(vertices_vec[h*mR+p]);
+                _mesh.add_face(newFace);
+            }
+    }
+
+    return _mesh;
 }
 
 
