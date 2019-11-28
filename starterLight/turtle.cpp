@@ -12,16 +12,16 @@ Turtle::Turtle(float x_, float y_, float z_, float angleX_, float angleY_, float
     dist = dist_;
 }
 
-void Turtle::translateString(QString mot, MyMesh *mesh)
+void Turtle::translateString(QString mot, MyMesh *mesh, QVector<QString> *VertIdList)
 {
     pile.push_back(*this);
     for (int i = 0; i < mot.size() ; i++){
-        translateChar(mot.at(i).unicode(),mesh);
+        translateChar(mot.at(i).unicode(),mesh, VertIdList);
     }
 
 }
 
-void Turtle::translateChar(QChar c,MyMesh *mesh)
+void Turtle::translateChar(QChar c,MyMesh *mesh, QVector<QString> *VertIdList)
 {
     switch (c.unicode()) {
     case 'A':
@@ -29,7 +29,7 @@ void Turtle::translateChar(QChar c,MyMesh *mesh)
         break;
     case 'F':
         moveForward();
-        addPoint(mesh);
+        addPoint(mesh, VertIdList);
         break;
     case 'L':
         createLeaf();
@@ -50,7 +50,7 @@ void Turtle::translateChar(QChar c,MyMesh *mesh)
         turn180();
         break;
     case 'J':
-        addPoint(mesh);
+        addPoint(mesh,VertIdList);
         break;
     case '"':
         multDist(dL);
@@ -60,10 +60,15 @@ void Turtle::translateChar(QChar c,MyMesh *mesh)
         break;
     case '[':
     {
+//        vertIdList.push_back('[');
+        VertIdList->push_back("[");
         pile.push_back(*this);
         break;
     }
     case ']':
+//        vertIdList.push_back(']');
+
+        VertIdList->push_back("]");
         this->equal(pile.back());
         pile.pop_back();
         break;
@@ -115,11 +120,15 @@ void Turtle::turn180()
     angleY *= -1;
 }
 
-void Turtle::addPoint(MyMesh *mesh)
+void Turtle::addPoint(MyMesh *mesh, QVector<QString> *VertIdList)
 {
     vertList.push_back( mesh->add_vertex(MyMesh::Point(coord)));
-    qDebug() << "angleX " << angleX << " angleY " << angleY << " angleZ " << angleZ;
-    qDebug() << " x " << coord[0] << " y " << coord[1] << " z " << coord[2] << endl;;
+    int id = vertList[vertList.length()-1].idx();
+    VertIdList->push_back(QString::number(id));
+//    vertIdList.push_back('c');
+//    qDebug() << "angleX " << angleX << " angleY " << angleY << " angleZ " << angleZ;
+//    qDebug() << " x " << coord[0] << " y " << coord[1] << " z " << coord[2] << endl;;
+//    qDebug() << id ;
 }
 
 void Turtle::multDist(float dL_)

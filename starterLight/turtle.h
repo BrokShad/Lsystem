@@ -11,8 +11,8 @@ class Turtle
 {
 public:
     Turtle(float x, float y, float z, float angleX_, float angleY_, float angleZ_, float dist_);
-    void translateString(QString mot, MyMesh *mesh);
-    void translateChar(QChar c, MyMesh *mesh);
+    void translateString(QString mot, MyMesh *mesh, QVector<QString> *VertIdList);
+    void translateChar(QChar c, MyMesh *mesh, QVector<QString> *VertIdList);
 
     void create3leafs();
     void moveForward();
@@ -21,7 +21,7 @@ public:
     void turn(QChar c);
     void point(QChar c);
     void turn180();
-    void addPoint(MyMesh *mesh);
+    void addPoint(MyMesh *mesh, QVector<QString> *VertIdList);
     void multDist(float dL);
     void addWeigth(float w);
     std::list<Turtle> pile;
@@ -34,6 +34,7 @@ private:
     float z;
     MyMesh::Point coord = MyMesh::Point(x,y,z);
     float valAngle = 0.5;
+
     float angleX;
     float angleY;
     float angleZ;
