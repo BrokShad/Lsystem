@@ -36,16 +36,15 @@ class MainWindow : public QMainWindow
 
 public:
     QString mot = "A";
-    QString caseA = "F&F[+F]F";
-    QString caseF = "F^[F-]";
-    QString caseS = "FL";
-    QString caseL = "[’’’∧∧{-f+f+f-|-f+f+f}]";
+    QString caseA = "F-F++F&F^F";
+    QString caseF = "A[&&A]";
+    QString caseS = "";
+    QString caseL = "";
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void generer_mot();
     void displayMesh(MyMesh *_mesh, bool isTemperatureMap = false, float mapRange = -1);
     void resetAllColorsAndThickness(MyMesh* _mesh);
-<<<<<<< HEAD
     QVector<QString> VertIdList;
 
     // VertIdList est le Qvector des id de chaque points du mesh.
@@ -63,13 +62,11 @@ public:
     //vient de croiser
 
     // Finalement il suffira de donner les deux points trouver a la fonciton de création de cylindre pour créé un tronc
-=======
     MyMesh frustum_into_mesh(float xA, float yA, float zA,
                            float xB, float yB, float zB,
                            float radius, float coef_radius,
                            float step_r, float step_s, float step_t);
 
->>>>>>> 385f4174bd3cc83d190e5c7c69bd48a022f852fe
 private slots:
 
     void on_pushButton_chargement_clicked();
