@@ -322,7 +322,8 @@ void MainWindow::on_pushButton_Reset_clicked()
     mot = "A";
 }
 
-//Fonctions erwan
+
+//Fonctions Frustum - Génération de maillage
 
 MyMesh::VertexHandle point_to_vertex(MyMesh *_mesh, float x, float y, float z)
 {
@@ -453,11 +454,16 @@ MyMesh* MainWindow::frustum_into_mesh(float xA, float yA, float zA,
 }
 
 
+//Fonctions
 
+void motToMesh();
+
+//
 void MainWindow::on_pushButton_2_clicked()
 {
     Turtle t = Turtle(0,0,0,22,15,20,1);
-    t.translateString(mot,&mesh);
+    t.translateString(mot,&mesh,&VertIdList);
+    qDebug() << VertIdList;
     mesh.update_normals();
 
     // initialisation des couleurs et épaisseurs (sommets et arêtes) du mesh

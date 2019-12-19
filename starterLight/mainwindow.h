@@ -5,6 +5,7 @@
 #include <QMainWindow>
 #include <OpenMesh/Core/IO/MeshIO.hh>
 #include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
+#include <QVector>
 
 namespace Ui {
 class MainWindow;
@@ -35,8 +36,8 @@ class MainWindow : public QMainWindow
 
 public:
     QString mot = "A";
-    QString caseA = "[&FL!A]DDDDD’[&FL!A]DDDDD’[&FL!A]";
-    QString caseF = "S DDDDD F";
+    QString caseA = "F&F[+F]F";
+    QString caseF = "F^[F-]";
     QString caseS = "FL";
     QString caseL = "[’’’∧∧{-f+f+f-|-f+f+f}]";
     explicit MainWindow(QWidget *parent = 0);
@@ -44,12 +45,31 @@ public:
     void generer_mot();
     void displayMesh(MyMesh *_mesh, bool isTemperatureMap = false, float mapRange = -1);
     void resetAllColorsAndThickness(MyMesh* _mesh);
+    QVector<QString> VertIdList;
+
+    // VertIdList est le Qvector des id de chaque points du mesh.
+    // les fils (comme dans la string de generation) sont séparés par des "[]"
+    // Exemple : 0 [ 1 [ 2 ] ] 3 [ 4 ]
+    // ce QVector signifie que :
+    /*  0 est le pere de 1
+     * 1 est le pere de 2
+     * 3 est le frere (fait partie de la branche principale) de 0
+     * 3 est aussi le pere de 4
+     * */
+    // Pour trouver quels couple utilisé on partira donc de l'ID courant, puis en allant vers le début du tableau :
+    // si un "]" est croisé on attendra un "[" avant de pouvoir définir le couple
+    // si un chiffre est croisé et qu'on est pas dans un "[]" alors on sait que le pere du vecteur courant est le chiffre que l'on
+    //vient de croiser
+
+    // Finalement il suffira de donner les deux points trouver a la fonciton de création de cylindre pour créé un tronc
+
     MyMesh* frustum_into_mesh(float xA, float yA, float zA,
                            float xB, float yB, float zB,
                            float radius, float coef_radius,
                            float step_r, float step_s, float step_t);
 
 private slots:
+
     void on_pushButton_chargement_clicked();
 
     void on_pushButton_generer_clicked();
