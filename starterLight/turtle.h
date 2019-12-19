@@ -10,7 +10,7 @@
 class Turtle
 {
 public:
-    Turtle(float x, float y, float z, float angleX_, float angleY_, float angleZ_, float dist_);
+    Turtle(float x, float y, float z, float angleX_, float angleY_, float angleZ_, float dist_, float valAngle_);
     void translateString(QString mot, MyMesh *mesh, QVector<QString> *VertIdList);
     void translateChar(QChar c, MyMesh *mesh, QVector<QString> *VertIdList);
 
@@ -33,7 +33,7 @@ private:
     float y;
     float z;
     MyMesh::Point coord = MyMesh::Point(x,y,z);
-    float valAngle = 0.5;
+    float valAngle;
 
     float angleX;
     float angleY;

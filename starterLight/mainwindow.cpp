@@ -6,23 +6,7 @@
 /* **** début de la partie boutons et IHM **** */
 
 
-// exemple pour charger un fichier .obj
-void MainWindow::on_pushButton_chargement_clicked()
-{
-    // fenêtre de sélection des fichiers
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Mesh"), "", tr("Mesh Files (*.obj)"));
 
-    // chargement du fichier .obj dans la variable globale "mesh"
-    OpenMesh::IO::read_mesh(mesh, fileName.toUtf8().constData());
-
-    mesh.update_normals();
-
-    // initialisation des couleurs et épaisseurs (sommets et arêtes) du mesh
-    resetAllColorsAndThickness(&mesh);
-
-    // on affiche le maillage
-    displayMesh(&mesh);
-}
 
 // exemple pour construire un mesh face par face
 void MainWindow::on_pushButton_generer_clicked()
@@ -257,6 +241,10 @@ void MainWindow::displayMesh(MyMesh* _mesh, bool isTemperatureMap, float mapRang
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->lineEditA->setText(caseA);
+    ui->lineEditF->setText(caseF);
+    ui->lineEditL->setText(caseL);
+    ui->lineEditS->setText(caseS);
 }
 
 MainWindow::~MainWindow()
@@ -264,11 +252,11 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::generer_mot()
+QString MainWindow::generer_mot(QString source)
 {
     QString mottmp;
-    for (int i = 0; i < mot.size() ; i++){
-        switch(mot.at(i).unicode()){
+    for (int i = 0; i < source.size() ; i++){
+        switch(source.at(i).unicode()){
         case 'A' :
             mottmp.append(caseA);
             break ;
@@ -286,42 +274,121 @@ void MainWindow::generer_mot()
             break;
         }
     }
-    mot = mottmp;
-    qDebug() << mot ;
-}
-
-
-
-void MainWindow::on_pushButton_clicked()
-{
-    generer_mot();
+//    qDebug() << mottmp ;
+    return mottmp;
 }
 
 void MainWindow::on_lineEditA_textEdited(const QString &arg1)
 {
     caseA = arg1;
+
+    generer();
 }
 
 void MainWindow::on_lineEditF_textEdited(const QString &arg1)
 {
     caseF = arg1;
+
+    generer();
 }
 
 void MainWindow::on_lineEditS_textEdited(const QString &arg1)
 {
     caseS = arg1;
+
+    generer();
 }
 
 void MainWindow::on_lineEditL_textEdited(const QString &arg1)
 {
     caseL = arg1;
+
+    generer();
 }
 
-void MainWindow::on_pushButton_Reset_clicked()
+void MainWindow::on_iterationsSlider_valueChanged(int value)
+{
+    iteration_number = value;
+    ui->iterationsLabel->setText("Nombre d'itérations: "+QVariant(iteration_number).toString());
+
+    generer();
+}
+
+void MainWindow::on_angleXSlider_valueChanged(int value)
+{
+    angleX = value;
+    ui->angleXLabel->setText("Angle X: "+QVariant(angleX).toString());
+
+    generer();
+}
+
+void MainWindow::on_angleYSlider_valueChanged(int value)
+{
+    angleY = value;
+    ui->angleYLabel->setText("Angle Y: "+QVariant(angleY).toString());
+
+    generer();
+}
+
+void MainWindow::on_angleZSlider_valueChanged(int value)
+{
+    angleZ = value;
+    ui->angleZLabel->setText("Angle Z: "+QVariant(angleZ).toString());
+
+    generer();
+}
+
+void MainWindow::on_valAngleSlider_valueChanged(int value)
+{
+    valAngle = value;
+    ui->valAngleLabel->setText("ValAngle: "+QVariant(valAngle).toString());
+
+    generer();
+}
+
+void MainWindow::on_distSlider_valueChanged(int value)
+{
+    dist = static_cast<float>(value)/50;
+    ui->distLabel->setText("Dist: "+QVariant(dist).toString());
+
+    generer();
+}
+
+void MainWindow::on_dlSlider_valueChanged(int value)
+{
+    dL = value;
+    ui->dlLabel->setText("dL: "+QVariant(dL).toString());
+
+    generer();
+}
+
+void MainWindow::on_wSlider_valueChanged(int value)
+{
+    w = value;
+    ui->wLabel->setText("w: "+QVariant(w).toString());
+
+    generer();
+}
+
+void MainWindow::generer()
 {
     mot = "A";
-}
+    for(int i = 0; i<iteration_number; i++)
+        mot = generer_mot(mot);
 
+    mesh.clear();
+    Turtle t = Turtle(0,0,0,angleX*M_PI/180,angleY*M_PI/180,angleZ*M_PI/180,dist,valAngle*M_PI/180);
+    t.translateString(mot,&mesh,&VertIdList);
+//    qDebug() << VertIdList;
+    mesh.update_normals();
+
+    // initialisation des couleurs et épaisseurs (sommets et arêtes) du mesh
+    resetAllColorsAndThickness(&mesh);
+
+
+    // on affiche le maillage
+    displayMesh(&mesh);
+}
 
 //Fonctions Frustum - Génération de maillage
 
@@ -459,17 +526,6 @@ MyMesh* MainWindow::frustum_into_mesh(float xA, float yA, float zA,
 void motToMesh();
 
 //
-void MainWindow::on_pushButton_2_clicked()
-{
-    Turtle t = Turtle(0,0,0,22,15,20,1);
-    t.translateString(mot,&mesh,&VertIdList);
-    qDebug() << VertIdList;
-    mesh.update_normals();
-
-    // initialisation des couleurs et épaisseurs (sommets et arêtes) du mesh
-    resetAllColorsAndThickness(&mesh);
 
 
-    // on affiche le maillage
-    displayMesh(&mesh);
-}
+

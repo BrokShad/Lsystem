@@ -32,14 +32,4 @@ diapo de 5-10 pages
 Schema de comment marche le prog  
 nos resultats  
 
-Travail pour TIM :  
--Nombre itération borné a 6-7  
--Angle X,Y,Z  
--dist  
--Val angle  
--dL  
--w  
--faire un bouton qui valide l'alphabet et qui update le model  
--retirer charger obj  
--transfomer le constructeur de la turltle pour lui donner valangle dl et w  
 

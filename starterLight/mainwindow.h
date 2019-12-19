@@ -36,13 +36,21 @@ class MainWindow : public QMainWindow
 
 public:
     QString mot = "A";
-    QString caseA = "F-F++F&F^F";
-    QString caseF = "A[&&A]";
+    QString caseA = "F-++F&F^";
+    QString caseF = "A[F&&F]";
     QString caseS = "";
     QString caseL = "";
+    int iteration_number = 1;
+    int angleX = 0;
+    int angleY = 0;
+    int angleZ = 0;
+    int valAngle = 20;
+    float dist = 1.0;
+    int dL = 1;
+    int w = 5;
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void generer_mot();
+    QString generer_mot(QString source);
     void displayMesh(MyMesh *_mesh, bool isTemperatureMap = false, float mapRange = -1);
     void resetAllColorsAndThickness(MyMesh* _mesh);
 
@@ -69,13 +77,11 @@ public:
                            float radius, float coef_radius,
                            float step_r, float step_s, float step_t);
 
+    void generer();
+
 private slots:
 
-    void on_pushButton_chargement_clicked();
-
     void on_pushButton_generer_clicked();
-
-    void on_pushButton_clicked();
 
     void on_lineEditA_textEdited(const QString &arg1);
 
@@ -85,9 +91,21 @@ private slots:
 
     void on_lineEditL_textEdited(const QString &arg1);
 
-    void on_pushButton_Reset_clicked();
+    void on_iterationsSlider_valueChanged(int value);
 
-    void on_pushButton_2_clicked();
+    void on_angleXSlider_valueChanged(int value);
+
+    void on_angleYSlider_valueChanged(int value);
+
+    void on_angleZSlider_valueChanged(int value);
+
+    void on_valAngleSlider_valueChanged(int value);
+
+    void on_distSlider_valueChanged(int value);
+
+    void on_dlSlider_valueChanged(int value);
+
+    void on_wSlider_valueChanged(int value);
 
 private:
 
