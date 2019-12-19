@@ -30,9 +30,10 @@ void MainWindow::on_pushButton_generer_clicked()
     MyMesh mesh;
 
     // on construit une liste de sommets
-    mesh = frustum_into_mesh(-1, -4, 0, 3, 2, 0,
-                      4, 0,
-                      0.01f, 0.1f, 0.04f);
+    mesh = *frustum_into_mesh(2, 8, -4,
+                              2, -8, -4,
+                              2, 0,
+                              0.05f, 0.07f, 0.04f);
 
     mesh.update_normals();
 
@@ -321,14 +322,15 @@ void MainWindow::on_pushButton_Reset_clicked()
     mot = "A";
 }
 
-//Fonctions erwan
 
-MyMesh::VertexHandle point_to_vertex(MyMesh _mesh, float x, float y, float z)
+//Fonctions Frustum - Génération de maillage
+
+MyMesh::VertexHandle point_to_vertex(MyMesh *_mesh, float x, float y, float z)
 {
-     return _mesh.add_vertex(MyMesh::Point(x, y,  z));
+     return _mesh->add_vertex(MyMesh::Point(x, y,  z));
 }
 
-QVector<MyMesh::VertexHandle> points_into_mesh(MyMesh _mesh, QVector<float> points)
+QVector<MyMesh::VertexHandle> points_into_mesh(MyMesh *_mesh, QVector<float> points)
 {
     QVector<MyMesh::VertexHandle> vertices_vector;
     for(int i = 0 ; i < points.size() ; i+=3)
@@ -349,8 +351,8 @@ QVector<MyMesh::VertexHandle> points_into_mesh(MyMesh _mesh, QVector<float> poin
 QVector<float> parametric_frustum_point(float h, float r, float s, float t)
 {
     QVector<float> point;
-    float x = r * cos(t);
-    float y = r * sin(t);
+    float x = r * cos(t*2*M_PI);
+    float y = r * sin(t*2*M_PI);
     float z = h*s; //hauteur * paramètre s (s = 0, z = 0, s = 1, z =0)
 
     point.push_back(x);
@@ -369,18 +371,20 @@ QVector<float> parametric_frustum(float high, float radius, float coef_radius, f
 {
     QVector<float> frustum_points;
     float r = radius;
-    float min_radius= radius*coef_radius;
+    float min_radius = radius*coef_radius;
+
 
     for(float s = 0; s <= 1 ; s += step_s) //hauteur
     {
-        for(float t = 0; t <= 1; t+= step_t) //point sur le cercle
+        if( r > min_radius)
         {
-           frustum_points.append(parametric_frustum_point(high, r, s, t));
+            r = radius-radius*s;
         }
 
-        if(r > min_radius)
+
+        for(float t = 0; t <= 1; t+= step_t) //position sur le cercle
         {
-            r -=step_r;
+           frustum_points.append(parametric_frustum_point(high, r, s, t));
         }
 
     }
@@ -389,12 +393,12 @@ QVector<float> parametric_frustum(float high, float radius, float coef_radius, f
 
 
 
-MyMesh MainWindow::frustum_into_mesh(float xA, float yA, float zA,
+MyMesh* MainWindow::frustum_into_mesh(float xA, float yA, float zA,
                        float xB, float yB, float zB,
                        float radius, float coef_radius,
                        float step_r, float step_s, float step_t)
 {
-    MyMesh _mesh;
+    MyMesh *_mesh = new MyMesh() ;
     float x = xB - xA;
     float y = yB - yA;
     float z = zB - zA;
@@ -403,39 +407,58 @@ MyMesh MainWindow::frustum_into_mesh(float xA, float yA, float zA,
     QVector<float> frustum_points = parametric_frustum(high_AB, radius, coef_radius, step_r, step_s, step_t);
 
     QVector<MyMesh::VertexHandle> vertices_vec = points_into_mesh(_mesh, frustum_points);
+
     std::vector<MyMesh::VertexHandle> newFace;
 
     float nS = 1.f/step_s;
-    float mR = 1.f/step_r;
-    qDebug() << vertices_vec.count() <<endl;
+    float mT = 1.f/step_t;
+
     for(int h = 1 ; h < nS; h++)
     {
-        for(int p = 1 ; p < mR; p++)
+        for(int p = 1 ; p <= mT; p++)
+        {
+            if(p >= mT)
             {
-                qDebug() << "h*mR+p" << h*mR+p << endl;
+                newFace.clear();
+                newFace.push_back(vertices_vec[h*mT+0]);
+                newFace.push_back(vertices_vec[h*mT+(mT-1)]);
+                newFace.push_back(vertices_vec[(h-1)*mT+(mT-1)]);
+                _mesh->add_face(newFace);
+
+                newFace.clear();
+                newFace.push_back(vertices_vec[h*mT+0]);
+                newFace.push_back(vertices_vec[(h-1)*mT+(mT-1)]);
+                newFace.push_back(vertices_vec[(h-1)*mT+0]);
+                _mesh->add_face(newFace);
+            }
+
+            else {
                 //1er demi-carré
-                //newFace.clear();
-                newFace.push_back(vertices_vec[h*mR+p]);
-                newFace.push_back(vertices_vec[h*mR+(p-1)]);
-                newFace.push_back(vertices_vec[(h-1)*mR+(p-1)]);
-                newFace.push_back(vertices_vec[h*mR+p]);
-                _mesh.add_face(newFace);
+                newFace.clear();
+                newFace.push_back(vertices_vec[h*mT+p]);
+                newFace.push_back(vertices_vec[h*mT+(p-1)]);
+                newFace.push_back(vertices_vec[(h-1)*mT+(p-1)]);
+                _mesh->add_face(newFace);
 
                 //2ème demi-carré
                 newFace.clear();
-                newFace.push_back(vertices_vec[h*mR+p]);
-                newFace.push_back(vertices_vec[(h-1)*mR+(p-1)]);
-                newFace.push_back(vertices_vec[(h-1)*mR+p]);
-                newFace.push_back(vertices_vec[h*mR+p]);
-                _mesh.add_face(newFace);
+                newFace.push_back(vertices_vec[h*mT+p]);
+                newFace.push_back(vertices_vec[(h-1)*mT+(p-1)]);
+                newFace.push_back(vertices_vec[(h-1)*mT+p]);
+                _mesh->add_face(newFace);
             }
+        }
     }
 
     return _mesh;
 }
 
 
+//Fonctions
 
+void motToMesh();
+
+//
 void MainWindow::on_pushButton_2_clicked()
 {
     Turtle t = Turtle(0,0,0,22,15,20,1);
