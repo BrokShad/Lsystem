@@ -45,6 +45,7 @@ public:
     void generer_mot();
     void displayMesh(MyMesh *_mesh, bool isTemperatureMap = false, float mapRange = -1);
     void resetAllColorsAndThickness(MyMesh* _mesh);
+
     QVector<QString> VertIdList;
 
     // VertIdList est le Qvector des id de chaque points du mesh.
