@@ -25,4 +25,21 @@ GUEGUEN Théodore
   http://vladlen.info/publications/metropolis-procedural-modeling/  
   http://algorithmicbotany.org/papers/  
   
-Open Space situé 171 Avenue de Luminy Marseille.
+Open Space situé 171 Avenue de Luminy Marseille.  
+
+Pour la rentrée:  
+diapo de 5-10 pages  
+Schema de comment marche le prog  
+nos resultats  
+
+Travail pour TIM :  
+-Nombre itération borné a 6-7  
+-Angle X,Y,Z  
+-dist  
+-Val angle  
+-dL  
+-w  
+-faire un bouton qui valide l'alphabet et qui update le model  
+-retirer charger obj  
+-transfomer le constructeur de la turltle pour lui donner valangle dl et w  
+
