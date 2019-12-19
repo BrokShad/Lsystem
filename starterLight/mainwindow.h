@@ -64,11 +64,10 @@ public:
 
     // Finalement il suffira de donner les deux points trouver a la fonciton de création de cylindre pour créé un tronc
 
-    MyMesh frustum_into_mesh(float xA, float yA, float zA,
+    MyMesh* frustum_into_mesh(float xA, float yA, float zA,
                            float xB, float yB, float zB,
                            float radius, float coef_radius,
                            float step_r, float step_s, float step_t);
-
 
 private slots:
 
