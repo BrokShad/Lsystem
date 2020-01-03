@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "turtle.h"
-
+#include <stdlib.h>
 
 /* **** début de la partie boutons et IHM **** */
 
@@ -27,22 +27,62 @@ void MainWindow::on_pushButton_chargement_clicked()
 // exemple pour construire un mesh face par face
 void MainWindow::on_pushButton_generer_clicked()
 {
-    MyMesh mesh;
+    Turtle t = Turtle(0,0,0,22,15,20,1);
+    t.translateString(mot,&mesh,&VertIdList);
+
+    MyMesh *new_mesh = new MyMesh();
 
     // on construit une liste de sommets
-    mesh = *frustum_into_mesh(2, 8, -4,
-                              2, -8, -4,
-                              2, 0,
-                              0.05f, 0.07f, 0.04f);
 
-    mesh.update_normals();
+    QVector<int> *pairs = toMesh();
 
-    // initialisation des couleurs et épaisseurs (sommets et arêtes) du mesh
-    resetAllColorsAndThickness(&mesh);
+    qDebug() << "Aloha " << endl;
 
-    // on affiche le maillage
-    displayMesh(&mesh);
+    qDebug() << pairs->count() << endl;
 
+    for(int i = 1; i < pairs->count(); i +=2)
+    {
+        MyMesh::Point from, to;
+        from = mesh.point(VertexHandle(pairs->data()[i-1]));
+        to = mesh.point(VertexHandle(pairs->data()[i]));
+
+        qDebug() << "From " << from[0] << ", " << from[1] << ", " << from[2] << endl;
+        qDebug() << "to " << to[0] << ", " << to[1] << ", " << to[2] << endl;
+
+
+        frustum_into_mesh(new_mesh,
+                          from[0], from[1], from[2],
+                          to[0], to[1], to[2],
+                          0.5f, 0,
+                          0.05f, 0.07f, 0.04f);
+    }
+
+/* Test des 2 fonctions polymorphes OK
+
+    //règles utilisées :
+    //
+    //QString mot = "A";
+    //QString caseA = "F&F[+F]F";
+    //QString caseF = "F^[F-]";
+    //QString caseS = "FL";
+    //QString caseL = "[’’’∧∧{-f+f+f-|-f+f+f}]";
+
+
+    new_mesh = frustum_into_mesh(0.672423f ,  -0.57559f ,  -75.9688f,
+                                 1.53848f ,  -0.758341f ,  -173.814f,
+                                 1, 0,
+                                 0.05f, 0.07f, 0.04f);
+
+
+    frustum_into_mesh(new_mesh,
+                      1.53848f ,  -0.758341f ,  -173.814f,
+                      49.2062f ,  -10.8169f ,  -271.659f,
+                      2, 0,
+                      0.05f, 0.07f, 0.04f);
+ */
+    new_mesh->update_normals();
+    resetAllColorsAndThickness(new_mesh);
+    displayMesh(new_mesh);
 }
 
 /* **** fin de la partie boutons et IHM **** */
@@ -69,6 +109,53 @@ void MainWindow::resetAllColorsAndThickness(MyMesh* _mesh)
         _mesh->data(*curEdge).thickness = 1;
         _mesh->set_color(*curEdge, MyMesh::Color(0, 0, 0));
     }
+}
+
+int find_parent(QStack<unsigned int> *parents)
+{
+    return parents->top();
+}
+
+QVector<int>* MainWindow::toMesh()
+{
+    static int parent;
+    QVector<int>* pairs = new QVector<int>();
+    qDebug()<< "count " << VertIdList.count() << endl;
+
+    QStack<unsigned int> parents;
+    parents.push(VertIdList.at(0).toInt());
+
+    int k = 1;
+    for(QVector<QString>::iterator it = VertIdList.begin()+1; it != VertIdList.end(); it++)
+    {
+        if(it->compare("[")!=0 && it->compare("]") != 0)
+        {
+            parent = find_parent(&parents);
+
+            qDebug() << "pere et fils " << parent << " et " << it->toInt() << endl;
+            pairs->append(parent);
+            pairs->append(it->toInt());
+
+            if(VertIdList.at(k-1).compare("[")==0)
+            {
+                parents.push(VertIdList.at(k).toInt());
+            }
+
+            else
+            {
+                parents.push(VertIdList.at(k).toInt());
+            }
+        }
+
+        else if(it->compare("]") == 0)
+        {
+            if(!parents.empty())
+                parents.pop();
+        }
+
+        k++;
+    }
+    return pairs;
 }
 
 // charge un objet MyMesh dans l'environnement OpenGL
@@ -327,7 +414,7 @@ void MainWindow::on_pushButton_Reset_clicked()
 
 MyMesh::VertexHandle point_to_vertex(MyMesh *_mesh, float x, float y, float z)
 {
-     return _mesh->add_vertex(MyMesh::Point(x, y,  z));
+    return _mesh->add_vertex(MyMesh::Point(x, y,  z));
 }
 
 QVector<MyMesh::VertexHandle> points_into_mesh(MyMesh *_mesh, QVector<float> points)
@@ -384,7 +471,7 @@ QVector<float> parametric_frustum(float high, float radius, float coef_radius, f
 
         for(float t = 0; t <= 1; t+= step_t) //position sur le cercle
         {
-           frustum_points.append(parametric_frustum_point(high, r, s, t));
+            frustum_points.append(parametric_frustum_point(high, r, s, t));
         }
 
     }
@@ -394,9 +481,9 @@ QVector<float> parametric_frustum(float high, float radius, float coef_radius, f
 
 
 MyMesh* MainWindow::frustum_into_mesh(float xA, float yA, float zA,
-                       float xB, float yB, float zB,
-                       float radius, float coef_radius,
-                       float step_r, float step_s, float step_t)
+                                      float xB, float yB, float zB,
+                                      float radius, float coef_radius,
+                                      float step_r, float step_s, float step_t)
 {
     MyMesh *_mesh = new MyMesh() ;
     float x = xB - xA;
@@ -452,6 +539,65 @@ MyMesh* MainWindow::frustum_into_mesh(float xA, float yA, float zA,
 
     return _mesh;
 }
+
+
+void MainWindow::frustum_into_mesh(MyMesh* _mesh, float xA, float yA, float zA,
+                                      float xB, float yB, float zB,
+                                      float radius, float coef_radius,
+                                      float step_r, float step_s, float step_t)
+{
+    float x = xB - xA;
+    float y = yB - yA;
+    float z = zB - zA;
+
+    float high_AB = sqrt(x*x + y*y + z*z);
+    QVector<float> frustum_points = parametric_frustum(high_AB, radius, coef_radius, step_r, step_s, step_t);
+
+    QVector<MyMesh::VertexHandle> vertices_vec = points_into_mesh(_mesh, frustum_points);
+
+    std::vector<MyMesh::VertexHandle> newFace;
+
+    float nS = 1.f/step_s;
+    float mT = 1.f/step_t;
+
+    for(int h = 1 ; h < nS; h++)
+    {
+        for(int p = 1 ; p <= mT; p++)
+        {
+            if(p >= mT)
+            {
+                newFace.clear();
+                newFace.push_back(vertices_vec[h*mT+0]);
+                newFace.push_back(vertices_vec[h*mT+(mT-1)]);
+                newFace.push_back(vertices_vec[(h-1)*mT+(mT-1)]);
+                _mesh->add_face(newFace);
+
+                newFace.clear();
+                newFace.push_back(vertices_vec[h*mT+0]);
+                newFace.push_back(vertices_vec[(h-1)*mT+(mT-1)]);
+                newFace.push_back(vertices_vec[(h-1)*mT+0]);
+                _mesh->add_face(newFace);
+            }
+
+            else {
+                //1er demi-carré
+                newFace.clear();
+                newFace.push_back(vertices_vec[h*mT+p]);
+                newFace.push_back(vertices_vec[h*mT+(p-1)]);
+                newFace.push_back(vertices_vec[(h-1)*mT+(p-1)]);
+                _mesh->add_face(newFace);
+
+                //2ème demi-carré
+                newFace.clear();
+                newFace.push_back(vertices_vec[h*mT+p]);
+                newFace.push_back(vertices_vec[(h-1)*mT+(p-1)]);
+                newFace.push_back(vertices_vec[(h-1)*mT+p]);
+                _mesh->add_face(newFace);
+            }
+        }
+    }
+}
+
 
 
 //Fonctions

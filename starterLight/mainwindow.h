@@ -46,6 +46,7 @@ public:
     void displayMesh(MyMesh *_mesh, bool isTemperatureMap = false, float mapRange = -1);
     void resetAllColorsAndThickness(MyMesh* _mesh);
     QVector<QString> VertIdList;
+    QVector<int>* toMesh();
 
     // VertIdList est le Qvector des id de chaque points du mesh.
     // les fils (comme dans la string de generation) sont séparés par des "[]"
@@ -56,7 +57,7 @@ public:
      * 3 est le frere (fait partie de la branche principale) de 0
      * 3 est aussi le pere de 4
      * */
-    // Pour trouver quels couple utilisé on partira donc de l'ID courant, puis en allant vers le début du tableau :
+    // Pour trouver quels couples utiliser on partira donc de l'ID courant, puis en allant vers le début du tableau :
     // si un "]" est croisé on attendra un "[" avant de pouvoir définir le couple
     // si un chiffre est croisé et qu'on est pas dans un "[]" alors on sait que le pere du vecteur courant est le chiffre que l'on
     //vient de croiser
@@ -64,6 +65,11 @@ public:
     // Finalement il suffira de donner les deux points trouver a la fonciton de création de cylindre pour créé un tronc
 
     MyMesh* frustum_into_mesh(float xA, float yA, float zA,
+                           float xB, float yB, float zB,
+                           float radius, float coef_radius,
+                           float step_r, float step_s, float step_t);
+
+    void frustum_into_mesh(MyMesh* _mesh, float xA, float yA, float zA,
                            float xB, float yB, float zB,
                            float radius, float coef_radius,
                            float step_r, float step_s, float step_t);
