@@ -6,67 +6,90 @@
 /* **** début de la partie boutons et IHM **** */
 
 
+void verif_mesh_vertices(MyMesh *_mesh)
+{
+    for(int i = 0 ; i < _mesh->n_vertices(); i++)
+    {
+        qDebug() << "sommet " << i << " " << _mesh->point(_mesh->vertex_handle(i))[0] << ", " << _mesh->point(_mesh->vertex_handle(i))[1] << ", " << _mesh->point(_mesh->vertex_handle(i))[2] << endl;
+    }
+}
 
 
 // exemple pour construire un mesh face par face
 void MainWindow::on_pushButton_generer_clicked()
 {
-    Turtle t = Turtle(0,0,0,22,15,20,1);
+    mot = "A";
+    Turtle t = Turtle(0,0,0,angleX*M_PI/180,angleY*M_PI/180,angleZ*M_PI/180,dist,valAngle*M_PI/180);
     t.translateString(mot,&mesh,&VertIdList);
 
     MyMesh *new_mesh = new MyMesh();
 
-    // on construit une liste de sommets
+    // on construit une liste de paire de sommets -1 étant l'origine du repère
 
     QVector<int> *pairs = toMesh();
 
-    qDebug() << "Aloha " << endl;
-
-    qDebug() << pairs->count() << endl;
+    qDebug() << *pairs << endl;
+    //qDebug() << pairs->count() << endl;
 
     for(int i = 1; i < pairs->count(); i +=2)
     {
         MyMesh::Point from, to;
-        from = mesh.point(VertexHandle(pairs->data()[i-1]));
-        to = mesh.point(VertexHandle(pairs->data()[i]));
 
-        qDebug() << "From " << from[0] << ", " << from[1] << ", " << from[2] << endl;
-        qDebug() << "to " << to[0] << ", " << to[1] << ", " << to[2] << endl;
+        int index_from = pairs->data()[i-1];
+        int index_to = pairs->data()[i];
 
+        if(index_from < 0)
+        {
+            from = MyMesh::Point(0, 0, 0);
+        }
+        else
+        {
+            from = mesh.point(VertexHandle(index_from));
+        }
+
+        if(index_to < 0)
+        {
+            to = MyMesh::Point(0, 0, 0);
+        }
+
+        else
+        {
+            to = mesh.point(VertexHandle(index_to));
+        }
 
         frustum_into_mesh(new_mesh,
-                          from[0], from[1], from[2],
-                          to[0], to[1], to[2],
-                          0.5f, 0,
+                          from[0] , from[1], from[2] ,
+                          to[0]  ,  to[1] ,  to[2]  ,
+                          0.05f, 0,
                           0.05f, 0.07f, 0.04f);
+
+        //qDebug() << "From " << from[0] << ", " << from[1] << ", " << from[2] << endl;
+        //qDebug() << "to " << to[0] << ", " << to[1] << ", " << to[2] << endl;
+        //qDebug() << "frustum_into_mesh(new_mesh," << from[0]*10 << "," << from[1]*10 << "," << from[2]*10 << "," <<
+                                            //to[0]*10 << "," << to[1]*10 <<"," << to[2]*10 << "," <<
+                                           // "0.01f, 0,0.05f, 0.07f, 0.04f);" << endl;
     }
 
-/* Test des 2 fonctions polymorphes OK
+    //verif_mesh_vertices(new_mesh);
 
-    //règles utilisées :
-    //
-    //QString mot = "A";
-    //QString caseA = "F&F[+F]F";
-    //QString caseF = "F^[F-]";
-    //QString caseS = "FL";
-    //QString caseL = "[’’’∧∧{-f+f+f-|-f+f+f}]";
-
-
-    new_mesh = frustum_into_mesh(0.672423f ,  -0.57559f ,  -75.9688f,
-                                 1.53848f ,  -0.758341f ,  -173.814f,
-                                 1, 0,
-                                 0.05f, 0.07f, 0.04f);
-
-
-    frustum_into_mesh(new_mesh,
-                      1.53848f ,  -0.758341f ,  -173.814f,
-                      49.2062f ,  -10.8169f ,  -271.659f,
-                      2, 0,
-                      0.05f, 0.07f, 0.04f);
- */
     new_mesh->update_normals();
     resetAllColorsAndThickness(new_mesh);
     displayMesh(new_mesh);
+
+    /*
+    try
+      {
+        if ( !OpenMesh::IO::write_mesh(*new_mesh, "output.obj") )
+        {
+          qDebug()<< "Cannot write mesh to file 'output.obj'" << endl;
+        }
+      }
+      catch( std::exception& x )
+      {
+        qDebug() << x.what() << endl;
+      }
+      */
+
 }
 
 /* **** fin de la partie boutons et IHM **** */
@@ -95,46 +118,66 @@ void MainWindow::resetAllColorsAndThickness(MyMesh* _mesh)
     }
 }
 
-int find_parent(QStack<unsigned int> *parents)
+int find_parent(QStack<int> *parents)
 {
+    if(parents->empty())
+    {
+        return -1;
+    }
+
     return parents->top();
 }
 
 QVector<int>* MainWindow::toMesh()
 {
+    static int count = 0;
     static int parent;
     QVector<int>* pairs = new QVector<int>();
-    qDebug()<< "count " << VertIdList.count() << endl;
+    qDebug()<< "count " << VertIdList << endl;
 
-    QStack<unsigned int> parents;
-    parents.push(VertIdList.at(0).toInt());
+    QStack<int> parents;
 
-    int k = 1;
-    for(QVector<QString>::iterator it = VertIdList.begin()+1; it != VertIdList.end(); it++)
+    int k = 0;
+    for(QVector<QString>::iterator it = VertIdList.begin(); it != VertIdList.end(); it++)
     {
         if(it->compare("[")!=0 && it->compare("]") != 0)
         {
             parent = find_parent(&parents);
-
-            qDebug() << "pere et fils " << parent << " et " << it->toInt() << endl;
+            //qDebug() << "pere et fils " << parent << " et " << it->toInt() << endl;
             pairs->append(parent);
             pairs->append(it->toInt());
 
             if(VertIdList.at(k-1).compare("[")==0)
             {
                 parents.push(VertIdList.at(k).toInt());
+                //qDebug() << "crochet ouvrant " <<parents << endl;
             }
 
-            else
+            else if(VertIdList.at(k-1).compare("]")==0)
             {
                 parents.push(VertIdList.at(k).toInt());
             }
+
+            else if(VertIdList.at(k-1).compare("]")!=0 && VertIdList.at(k-1).compare("[")!=0)
+            {
+                if(!parents.empty())
+                    parents.pop();
+                parents.push(VertIdList.at(k).toInt());
+                //qDebug() << "nombre " << parents << endl;
+            }
+
         }
 
         else if(it->compare("]") == 0)
         {
-            if(!parents.empty())
+            count--;
+            if(!parents.empty() && VertIdList.at(k-1).compare("]")!=0 && VertIdList.at(k-1).compare("[")!=0)
                 parents.pop();
+        }
+
+        else
+        {
+            count++;
         }
 
         k++;
@@ -466,7 +509,7 @@ void MainWindow::generer()
     mesh.clear();
     Turtle t = Turtle(0,0,0,angleX*M_PI/180,angleY*M_PI/180,angleZ*M_PI/180,dist,valAngle*M_PI/180);
     t.translateString(mot,&mesh,&VertIdList);
-//    qDebug() << VertIdList;
+    qDebug() << "Generer " << VertIdList;
     mesh.update_normals();
 
     // initialisation des couleurs et épaisseurs (sommets et arêtes) du mesh
@@ -484,12 +527,12 @@ MyMesh::VertexHandle point_to_vertex(MyMesh *_mesh, float x, float y, float z)
     return _mesh->add_vertex(MyMesh::Point(x, y,  z));
 }
 
-QVector<MyMesh::VertexHandle> points_into_mesh(MyMesh *_mesh, QVector<float> points)
+QVector<MyMesh::VertexHandle> points_into_mesh(MyMesh *_mesh, QVector<QVector3D> points)
 {
     QVector<MyMesh::VertexHandle> vertices_vector;
-    for(int i = 0 ; i < points.size() ; i+=3)
+    for(int i = 0 ; i < points.size() ; i++)
     {
-        vertices_vector.append(point_to_vertex(_mesh, points.data()[i], points.data()[i+1], points.data()[i+2]));
+        vertices_vector.append(point_to_vertex(_mesh, points.data()[i].x(), points.data()[i].y(), points.data()[i].z()));
     }
 
     return vertices_vector;
@@ -502,16 +545,16 @@ QVector<MyMesh::VertexHandle> points_into_mesh(MyMesh *_mesh, QVector<float> poi
  *
  */
 
-QVector<float> parametric_frustum_point(float h, float r, float s, float t)
+QVector3D parametric_frustum_point(float h, float r, float s, float t)
 {
-    QVector<float> point;
+    QVector3D point;
     float x = r * cos(t*2*M_PI);
     float y = r * sin(t*2*M_PI);
     float z = h*s; //hauteur * paramètre s (s = 0, z = 0, s = 1, z =0)
-
-    point.push_back(x);
-    point.push_back(y);
-    point.push_back(z);
+    //qDebug() << " coord (" << x << ", " << y << ", " << z << ")" << endl;
+    point.setX(x);
+    point.setY(y);
+    point.setZ(z);
 
     return point;
 }
@@ -521,9 +564,11 @@ QVector<float> parametric_frustum_point(float h, float r, float s, float t)
 //sinon si coef_radius == 0 alors on dessine un cône
 //sinon entre ]0, 1[ un frustum (tronc de cone)
 
-QVector<float> parametric_frustum(float high, float radius, float coef_radius, float step_r, float step_s, float step_t)
+QVector<QVector3D> parametric_frustum(float x, float y, float z, float high, float radius, float coef_radius, float step_r, float step_s, float step_t)
 {
-    QVector<float> frustum_points;
+    QVector<QVector3D> frustum_points;
+    QVector3D start(x, y, z);
+
     float r = radius;
     float min_radius = radius*coef_radius;
 
@@ -538,13 +583,32 @@ QVector<float> parametric_frustum(float high, float radius, float coef_radius, f
 
         for(float t = 0; t <= 1; t+= step_t) //position sur le cercle
         {
-            frustum_points.append(parametric_frustum_point(high, r, s, t));
+            frustum_points.append(start+parametric_frustum_point(high, r, s, t));
         }
 
     }
+
     return frustum_points;
 }
 
+
+float angleEE(QVector3D from, QVector3D to)
+{
+    QVector3D horizontal(0, 1, 0);
+    QVector3D u(horizontal-from);
+    QVector3D v(to-from);
+
+    u.normalize();
+    v.normalize();
+    //MyMesh::Point p0 = _mesh->point(vex0);
+
+    //MyMesh::Point u = points[0] - p0;
+    //MyMesh::Point v = points[1] - p0;
+    //v.normalize();
+   // u.normalize();
+
+    return acos(QVector3D::dotProduct(u,v));
+}
 
 
 MyMesh* MainWindow::frustum_into_mesh(float xA, float yA, float zA,
@@ -558,7 +622,7 @@ MyMesh* MainWindow::frustum_into_mesh(float xA, float yA, float zA,
     float z = zB - zA;
 
     float high_AB = sqrt(x*x + y*y + z*z);
-    QVector<float> frustum_points = parametric_frustum(high_AB, radius, coef_radius, step_r, step_s, step_t);
+    QVector<QVector3D> frustum_points = parametric_frustum(xA, yA, zA, high_AB, radius, coef_radius, step_r, step_s, step_t);
 
     QVector<MyMesh::VertexHandle> vertices_vec = points_into_mesh(_mesh, frustum_points);
 
@@ -618,7 +682,7 @@ void MainWindow::frustum_into_mesh(MyMesh* _mesh, float xA, float yA, float zA,
     float z = zB - zA;
 
     float high_AB = sqrt(x*x + y*y + z*z);
-    QVector<float> frustum_points = parametric_frustum(high_AB, radius, coef_radius, step_r, step_s, step_t);
+    QVector<QVector3D> frustum_points = parametric_frustum(x, y, z, high_AB, radius, coef_radius, step_r, step_s, step_t);
 
     QVector<MyMesh::VertexHandle> vertices_vec = points_into_mesh(_mesh, frustum_points);
 
