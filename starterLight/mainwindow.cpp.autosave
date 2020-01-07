@@ -680,8 +680,8 @@ void MainWindow::frustum_into_mesh(MyMesh* _mesh, float xA, float yA, float zA,
     float x = xB - xA;
     float y = yB - yA;
     float z = zB - zA;
-    float angleZ = arcos((xA * xB + zA * zB)/(sqrt((pow(xA,2)+pow(zA,2))*(pow(xB,2)+pow(zB,2)))));
-    float angleY = arcos((xA * xB + yA * yB)/(sqrt((pow(xA,2)+pow(yA,2))*(pow(xB,2)+pow(yB,2)))));
+    float angleY = arcos((xA * xB + zA * zB)/(sqrt((pow(xA,2)+pow(zA,2))*(pow(xB,2)+pow(zB,2)))));
+    float angleZ     = arcos((xA * xB + yA * yB)/(sqrt((pow(xA,2)+pow(yA,2))*(pow(xB,2)+pow(yB,2)))));
     float high_AB = sqrt(x*x + y*y + z*z);
     QVector<QVector3D> frustum_points = parametric_frustum(x, y, z, high_AB, radius, coef_radius, step_r, step_s, step_t);
 
