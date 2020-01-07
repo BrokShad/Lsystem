@@ -25,4 +25,11 @@ GUEGUEN Théodore
   http://vladlen.info/publications/metropolis-procedural-modeling/  
   http://algorithmicbotany.org/papers/  
   
-Open Space situé 171 Avenue de Luminy Marseille.
+Open Space situé 171 Avenue de Luminy Marseille.  
+
+Pour la rentrée:  
+diapo de 5-10 pages  
+Schema de comment marche le prog  
+nos resultats  
+
+

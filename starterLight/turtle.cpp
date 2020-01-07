@@ -1,7 +1,7 @@
 #include "turtle.h"
 #include <QDebug>
 
-Turtle::Turtle(float x_, float y_, float z_, float angleX_, float angleY_, float angleZ_, float dist_)
+Turtle::Turtle(float x_, float y_, float z_, float angleX_, float angleY_, float angleZ_, float dist_, float valAngle_)
 {
     coord[0] = x_;
     coord[1] = y_;
@@ -10,6 +10,7 @@ Turtle::Turtle(float x_, float y_, float z_, float angleX_, float angleY_, float
     angleY = angleY_;
     angleZ = angleZ_;
     dist = dist_;
+    valAngle = valAngle_;
 }
 
 void Turtle::translateString(QString mot, MyMesh *mesh, QVector<QString> *VertIdList)
