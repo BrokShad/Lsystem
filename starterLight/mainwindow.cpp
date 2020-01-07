@@ -28,7 +28,7 @@ void MainWindow::on_pushButton_generer_clicked()
 
     QVector<int> *pairs = toMesh();
 
-    qDebug() << *pairs << endl;
+    //qDebug() << *pairs << endl;
     //qDebug() << pairs->count() << endl;
 
     for(int i = 1; i < pairs->count(); i +=2)
@@ -65,9 +65,6 @@ void MainWindow::on_pushButton_generer_clicked()
 
         //qDebug() << "From " << from[0] << ", " << from[1] << ", " << from[2] << endl;
         //qDebug() << "to " << to[0] << ", " << to[1] << ", " << to[2] << endl;
-        //qDebug() << "frustum_into_mesh(new_mesh," << from[0]*10 << "," << from[1]*10 << "," << from[2]*10 << "," <<
-                                            //to[0]*10 << "," << to[1]*10 <<"," << to[2]*10 << "," <<
-                                           // "0.01f, 0,0.05f, 0.07f, 0.04f);" << endl;
     }
 
     //verif_mesh_vertices(new_mesh);
@@ -75,6 +72,9 @@ void MainWindow::on_pushButton_generer_clicked()
     new_mesh->update_normals();
     resetAllColorsAndThickness(new_mesh);
     displayMesh(new_mesh);
+
+    delete new_mesh;
+    delete pairs;
 
     /*
     try
@@ -567,8 +567,8 @@ QVector3D parametric_frustum_point(float h, float r, float s, float t)
 QVector<QVector3D> parametric_frustum(float x, float y, float z, float high, float radius, float coef_radius, float step_r, float step_s, float step_t)
 {
     QVector<QVector3D> frustum_points;
-    QVector3D start(x, y, z);
-
+    QVector3D start(x, y, z); //Vecteur de translation
+    //qDebug() << start << endl;
     float r = radius;
     float min_radius = radius*coef_radius;
 
@@ -579,8 +579,6 @@ QVector<QVector3D> parametric_frustum(float x, float y, float z, float high, flo
         {
             r = radius-radius*s;
         }
-
-
         for(float t = 0; t <= 1; t+= step_t) //position sur le cercle
         {
             frustum_points.append(start+parametric_frustum_point(high, r, s, t));
@@ -600,12 +598,6 @@ float angleEE(QVector3D from, QVector3D to)
 
     u.normalize();
     v.normalize();
-    //MyMesh::Point p0 = _mesh->point(vex0);
-
-    //MyMesh::Point u = points[0] - p0;
-    //MyMesh::Point v = points[1] - p0;
-    //v.normalize();
-   // u.normalize();
 
     return acos(QVector3D::dotProduct(u,v));
 }
@@ -671,7 +663,6 @@ MyMesh* MainWindow::frustum_into_mesh(float xA, float yA, float zA,
     return _mesh;
 }
 
-
 void MainWindow::frustum_into_mesh(MyMesh* _mesh, float xA, float yA, float zA,
                                       float xB, float yB, float zB,
                                       float radius, float coef_radius,
@@ -682,7 +673,7 @@ void MainWindow::frustum_into_mesh(MyMesh* _mesh, float xA, float yA, float zA,
     float z = zB - zA;
 
     float high_AB = sqrt(x*x + y*y + z*z);
-    QVector<QVector3D> frustum_points = parametric_frustum(x, y, z, high_AB, radius, coef_radius, step_r, step_s, step_t);
+    QVector<QVector3D> frustum_points = parametric_frustum(xA, yA, zA, high_AB, radius, coef_radius, step_r, step_s, step_t);
 
     QVector<MyMesh::VertexHandle> vertices_vec = points_into_mesh(_mesh, frustum_points);
 
@@ -729,11 +720,6 @@ void MainWindow::frustum_into_mesh(MyMesh* _mesh, float xA, float yA, float zA,
     }
 }
 
-
-
-//Fonctions
-
-void motToMesh();
 
 //
 
