@@ -479,7 +479,7 @@ void MainWindow::on_valAngleSlider_valueChanged(int value)
 void MainWindow::on_distSlider_valueChanged(int value)
 {
     dist = static_cast<float>(value)/50;
-    ui->distLabel->setText("Dist: "+QVariant(dist).toString());
+    ui->distLabel->setText("Dist: "+QVariant(static_cast<double>(static_cast<int>(dist*100))/100).toString());
 
     generer();
 }
