@@ -45,11 +45,11 @@ SOURCES += \
     turtle.cpp \
     matrix.cpp \
 
+
 HEADERS += \
         mainwindow.h \
     meshviewerwidget.h \
     turtle.h \
-    matrix.cpp
 
 FORMS += \
         mainwindow.ui

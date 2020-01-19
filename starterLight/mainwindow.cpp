@@ -22,9 +22,6 @@ void verif_mesh_vertices(MyMesh *_mesh)
 // exemple pour construire un mesh face par face
 void MainWindow::on_pushButton_generer_clicked()
 {
-    Turtle t = Turtle(0,0,0,angleX*M_PI/180,angleY*M_PI/180,angleZ*M_PI/180, dist, valAngle*M_PI/180);
-    t.translateString(mot,&mesh,&VertIdList);
-
     MyMesh *new_mesh = new MyMesh();
 
     // on construit une liste de paire de sommets -1 étant l'origine du repère
@@ -33,7 +30,7 @@ void MainWindow::on_pushButton_generer_clicked()
     qDebug() << *pairs << endl;
     //qDebug() << pairs->count() << endl;
 
-    qDebug() << "[" ;
+    //qDebug() << "[" ;
     for(int i = 1; i < pairs->count(); i +=2)
     {
         MyMesh::Point from, to;
@@ -151,23 +148,26 @@ QVector<int>* MainWindow::toMesh()
             pairs->append(parent);
             pairs->append(it->toInt());
 
-            if(VertIdList.at(k-1).compare("[")==0)
+            if(k > 0)
             {
-                parents.push(VertIdList.at(k).toInt());
-                //qDebug() << "crochet ouvrant " <<parents << endl;
-            }
+                if(VertIdList.at(k-1).compare("[")==0)
+                {
+                    parents.push(VertIdList.at(k).toInt());
+                    //qDebug() << "crochet ouvrant " <<parents << endl;
+                }
 
-            else if(VertIdList.at(k-1).compare("]")==0)
-            {
-                parents.push(VertIdList.at(k).toInt());
-            }
+                else if(VertIdList.at(k-1).compare("]")==0)
+                {
+                    parents.push(VertIdList.at(k).toInt());
+                }
 
-            else if(VertIdList.at(k-1).compare("]")!=0 && VertIdList.at(k-1).compare("[")!=0)
-            {
-                if(!parents.empty())
-                    parents.pop();
-                parents.push(VertIdList.at(k).toInt());
-                //qDebug() << "nombre " << parents << endl;
+                else if(VertIdList.at(k-1).compare("]")!=0 && VertIdList.at(k-1).compare("[")!=0)
+                {
+                    if(!parents.empty())
+                        parents.pop();
+                    parents.push(VertIdList.at(k).toInt());
+                    //qDebug() << "nombre " << parents << endl;
+                }
             }
 
         }
@@ -506,6 +506,8 @@ void MainWindow::on_wSlider_valueChanged(int value)
 
 void MainWindow::generer()
 {
+    VertIdList.clear();
+
     mot = "A";
     for(int i = 0; i<iteration_number; i++)
         mot = generer_mot(mot);
@@ -702,12 +704,15 @@ float angleVVZ(QVector3D from, QVector3D to)
 void rotate_frustum(double angleX, double angleY, double angleZ, QVector<QVector3D> *frustum_points)
 {
 
-    //qDebug() << "frustum " << endl;
-    /*
-    qDebug() << "aX " << angleX << endl;
-    qDebug() << "aY " << angleY << endl;
-    qDebug() << "aZ " << angleZ << endl;
-    */
+//    //qDebug() << "frustum " << endl;
+//    angleX *= 180/M_PI;
+//    angleY *= 180/M_PI;
+//    angleZ *= 180/M_PI;
+
+//    qDebug() << "aX " << angleX << endl;
+//    qDebug() << "aY " << angleY << endl;
+//    qDebug() << "aZ " << angleZ << endl;
+
 
     for(QVector<QVector3D>::iterator point = frustum_points->begin() ; point != frustum_points->end(); point++)
     {
@@ -834,15 +839,16 @@ void MainWindow::frustum_into_mesh(MyMesh* _mesh, float xA, float yA, float zA,
     aZ = angleVVZ(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
     float aX = angleVVX(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
 
+
     float high_AB = sqrt(x*x + y*y + z*z);
 
-    qDebug() <<"high AB " << high_AB << endl;
+    //qDebug() <<"high AB " << high_AB << endl;
 
     QVector<QVector3D> frustum_points = parametric_frustum(xA, yA, zA, high_AB, radius, coef_radius, step_r, step_s, step_t);
 
 
 
-    //rotate_frustum(aX, aY, aZ, &frustum_points);
+    rotate_frustum(aX, aY, aZ, &frustum_points);
     //translate_frustum(K, 0, 0, &frustum_points);
     //K += 0.1f;
 
