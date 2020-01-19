@@ -506,6 +506,7 @@ void MainWindow::on_wSlider_valueChanged(int value)
 
 void MainWindow::generer()
 {
+    VertIdList.clear();
     mot = "A";
     for(int i = 0; i<iteration_number; i++)
         mot = generer_mot(mot);
@@ -628,16 +629,19 @@ float angleVVZ(QVector3D from, QVector3D to)
 
 void rotate_frustum(double angleX, double angleY, double angleZ, QVector<QVector3D> *frustum_points)
 {
-
-    //qDebug() << "frustum " << endl;
-    angleX *= 180/M_PI;
-    angleY *= 180/M_PI;
-    angleZ *= 180/M_PI;
-    /*
     qDebug() << "aX " << angleX << endl;
     qDebug() << "aY " << angleY << endl;
     qDebug() << "aZ " << angleZ << endl;
-    */
+
+//    //qDebug() << "frustum " << endl;
+//    angleX *= 180/M_PI;
+//    angleY *= 180/M_PI;
+//    angleZ *= 180/M_PI;
+
+//    qDebug() << "aX " << angleX << endl;
+//    qDebug() << "aY " << angleY << endl;
+//    qDebug() << "aZ " << angleZ << endl;
+
 
     for(QVector<QVector3D>::iterator point = frustum_points->begin() ; point != frustum_points->end(); point++)
     {
@@ -663,8 +667,8 @@ void rotate_frustum(double angleX, double angleY, double angleZ, QVector<QVector
 
 
         point->setX(p3D.x);
-        point->setX(p3D.y);
-        point->setX(p3D.z);
+        point->setY(p3D.y);
+        point->setZ(p3D.z);
     }
 }
 
@@ -761,7 +765,6 @@ void MainWindow::frustum_into_mesh(MyMesh* _mesh, float xA, float yA, float zA,
     float angleY = acos((xA * xB + yA * yB)/(sqrt((pow(xA,2)+pow(yA,2))*(pow(xB,2)+pow(yB,2)))))*2*M_PI;
 
     angleY = angleVVY(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
-
     angleY = angleVVY(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
     angleZ = angleVVZ(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
 
