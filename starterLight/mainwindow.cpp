@@ -3,6 +3,9 @@
 #include "turtle.h"
 #include <stdlib.h>
 
+#include "matrix.cpp"
+
+
 /* **** début de la partie boutons et IHM **** */
 
 
@@ -600,14 +603,50 @@ float angleEE(QVector3D from, QVector3D to)
 
     u.normalize();
     v.normalize();
-    //MyMesh::Point p0 = _mesh->point(vex0);
-
-    //MyMesh::Point u = points[0] - p0;
-    //MyMesh::Point v = points[1] - p0;
-    //v.normalize();
-   // u.normalize();
-
     return acos(QVector3D::dotProduct(u,v));
+}
+
+
+void rotate_frustum(double angleX, double angleY, double angleZ, QVector<QVector3D> *frustum_points)
+{
+    /*
+    qDebug() << "frustum " << endl;
+    angleX *= 180/M_PI;
+    angleY *= 180/M_PI;
+    angleZ *= 180/M_PI;
+
+    qDebug() << "aX " << angleX << endl;
+    qDebug() << "aY " << angleY << endl;
+    qDebug() << "aZ " << angleZ << endl;
+    */
+
+    for(QVector<QVector3D>::iterator point = frustum_points->begin() ; point != frustum_points->end(); point++)
+    {
+        Point3D p3D;
+        p3D.x = point->x();
+        p3D.y = point->y();
+        p3D.z = point->z();
+
+        if(angleX != 0)
+        {
+            p3D = rotate_spherical_point(p3D, X_Axis, angleX);
+        }
+
+        if(angleY != 0)
+        {
+            p3D = rotate_spherical_point(p3D, Y_Axis, angleY);
+        }
+
+        if(angleZ != 0)
+        {
+            p3D = rotate_spherical_point(p3D, Z_Axis, angleZ);
+        }
+
+
+        point->setX(p3D.x);
+        point->setX(p3D.y);
+        point->setX(p3D.z);
+    }
 }
 
 
@@ -680,11 +719,14 @@ void MainWindow::frustum_into_mesh(MyMesh* _mesh, float xA, float yA, float zA,
     float x = xB - xA;
     float y = yB - yA;
     float z = zB - zA;
-    float angleZ = acos((xA * xB + zA * zB)/(sqrt((pow(xA,2)+pow(zA,2))*(pow(xB,2)+pow(zB,2)))));
-    float angleY = acos((xA * xB + yA * yB)/(sqrt((pow(xA,2)+pow(yA,2))*(pow(xB,2)+pow(yB,2)))));
+
+    float angleZ = acos((xA * xB + zA * zB)/(sqrt((pow(xA,2)+pow(zA,2))*(pow(xB,2)+pow(zB,2)))))*2*M_PI;
+    float angleY = acos((xA * xB + yA * yB)/(sqrt((pow(xA,2)+pow(yA,2))*(pow(xB,2)+pow(yB,2)))))*2*M_PI;
 
     float high_AB = sqrt(x*x + y*y + z*z);
-    QVector<QVector3D> frustum_points = parametric_frustum(x, y, z, high_AB, radius, coef_radius, step_r, step_s, step_t);
+    QVector<QVector3D> frustum_points = parametric_frustum(xA, yA, zB, high_AB, radius, coef_radius, step_r, step_s, step_t);
+
+    rotate_frustum(0, 45, 0, &frustum_points); //test rotation en Y 45 degré
 
     QVector<MyMesh::VertexHandle> vertices_vec = points_into_mesh(_mesh, frustum_points);
 

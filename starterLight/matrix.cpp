@@ -1,3 +1,16 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+
+using namespace std;
+
+enum Axe
+{
+    X_Axis,
+    Y_Axis,
+    Z_Axis
+};
+
 struct Point3D
 {
 	double x;
@@ -15,7 +28,7 @@ struct Matrix
 {
 	int h;
 	int w;
-	vector<vector<double>> m;
+    vector<vector<double>> m;
 
 	Matrix(int columns, int lines)
 	{
@@ -168,3 +181,4 @@ Point3D translate_point(Point3D p, int tx, int ty, int tz)
 	p = devectorize_point(point_matrix);
 	return p;
 }
+
