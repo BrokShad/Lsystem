@@ -666,7 +666,7 @@ MyMesh* MainWindow::frustum_into_mesh(float xA, float yA, float zA,
     QVector<MyMesh::VertexHandle> vertices_vec = points_into_mesh(_mesh, frustum_points);
 
     std::vector<MyMesh::VertexHandle> newFace;
-    qDebug() << "okokokok";
+    
     float nS = 1.f/step_s;
     float mT = 1.f/step_t;
 

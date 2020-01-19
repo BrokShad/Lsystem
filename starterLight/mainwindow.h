@@ -10,6 +10,7 @@
 #include <QVector>
 #include <QVector3D>
 #include <QDebug>
+#include <cmath>
 
 namespace Ui {
 class MainWindow;
