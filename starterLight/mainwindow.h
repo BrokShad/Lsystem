@@ -11,6 +11,7 @@
 #include <QVector3D>
 #include <QDebug>
 #include <cmath>
+#include <QTransform>
 
 namespace Ui {
 class MainWindow;
