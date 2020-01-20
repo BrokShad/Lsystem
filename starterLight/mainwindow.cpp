@@ -63,7 +63,7 @@ void MainWindow::on_pushButton_generer_clicked()
                           0.05f, 1,
                           0.9f, 0.1f, 0.1f);
 
-        //qDebug() << "From " << from[0] << ", " << from[1] << ", " << from[2] << endl;
+        qDebug() << "From " << from[0] << ", " << from[1] << ", " << from[2] << endl;
         //qDebug() << "to " << to[0] << ", " << to[1] << ", " << to[2] << endl;
         //qDebug() << "frustum_into_mesh(new_mesh," << from[0]*10 << "," << from[1]*10 << "," << from[2]*10 << "," <<
                                             //to[0]*10 << "," << to[1]*10 <<"," << to[2]*10 << "," <<
@@ -695,7 +695,7 @@ float angleDiedreZ(QVector3D from, QVector3D to)
     lateral.normalize();
     v.normalize();
 
-    if ( QVector3D::dotProduct((QVector3D::crossProduct(lateral, v)), QVector3D(1, 0, 0)) >=0)
+    if ( QVector3D::dotProduct((QVector3D::crossProduct(lateral, v)), QVector3D(1, 0, 0)) >=0 )
     {
         //qDebug() << "\t+";
         angle = acos( QVector3D::dotProduct(lateral, v) );
@@ -812,7 +812,7 @@ MyMesh* MainWindow::frustum_into_mesh(float xA, float yA, float zA,
     float z = zB - zA;
 
     float high_AB = sqrt(x*x + y*y + z*z);
-    QVector<QVector3D> frustum_points = parametric_frustum(xA, yA, zA, high_AB, radius, coef_radius, step_r, step_s, step_t);
+    QVector<QVector3D> frustum_points = parametric_frustum(0, 0, 0, high_AB, radius, coef_radius, step_r, step_s, step_t);
 
     QVector<MyMesh::VertexHandle> vertices_vec = points_into_mesh(_mesh, frustum_points);
 
@@ -874,22 +874,22 @@ void MainWindow::frustum_into_mesh(MyMesh* _mesh, float xA, float yA, float zA,
     float aZ = acos((xA * xB + zA * zB)/(sqrt((pow(xA,2)+pow(zA,2))*(pow(xB,2)+pow(zB,2)))))*2*M_PI;
     float aY = acos((xA * xB + yA * yB)/(sqrt((pow(xA,2)+pow(yA,2))*(pow(xB,2)+pow(yB,2)))))*2*M_PI;
 
-    aY = angleVVY(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
-    aZ = angleVVZ(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
-    float aX = angleVVX(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
-
+    aY = angleDiedreY(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
+    aZ = angleDiedreZ(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
+    float aX = angleDiedreX(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
 
     float high_AB = sqrt(x*x + y*y + z*z);
 
     //qDebug() <<"high AB " << high_AB << endl;
 
-    QVector<QVector3D> frustum_points = parametric_frustum(0, 0, 0, high_AB, radius, coef_radius, step_r, step_s, step_t);
+    QVector<QVector3D> frustum_points = parametric_frustum(xA, yA, zA, high_AB, radius, coef_radius, step_r, step_s, step_t);
 
 
 
     rotate_frustum(0, aY, aZ, &frustum_points);
-    translate_frustum(K, 0, 0, &frustum_points);
-    K += 0.1f;
+    rotate_frustum(aX, 0, 0, &frustum_points);
+    translate_frustum(0, 0, 0, &frustum_points);
+    //K += 0.1f;
 
     QVector<MyMesh::VertexHandle> vertices_vec = points_into_mesh(_mesh, frustum_points);
 
