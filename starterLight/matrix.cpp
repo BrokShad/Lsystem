@@ -148,21 +148,6 @@ Point3D rotate_spherical_point(Point3D p, Axe axe, double angle)
 			break;
 	}
 
-
-
-	// double x,y,z,w;
-	// x = qAxis.x*sin((qD*M_PI/180)/2);
-	// y = qAxis.y*sin((qD*M_PI/180)/2);
-	// z = qAxis.z*sin((qD*M_PI/180)/2);
-	// w = cos((qD*M_PI/180)/2);
-
-	// rotation_matrix.set(0,0,1-2*y*y-2*z*z);	rotation_matrix.set(1,0,2*x*y+2*w*z); 	rotation_matrix.set(2,0,2*x*z-2*w*y);	rotation_matrix.set(3,0,0);
-	// rotation_matrix.set(0,1,2*x*y-2*w*z);	rotation_matrix.set(1,1,1-2*x*x-2*z*z);	rotation_matrix.set(2,1,2*y*z+2*w*x);	rotation_matrix.set(3,1,0);
-	// rotation_matrix.set(0,2,2*x*z+2*w*y);	rotation_matrix.set(1,2,2*y*z-2*w*x);	rotation_matrix.set(2,2,1-2*x*x-2*y*y); rotation_matrix.set(3,2,0);
-	// rotation_matrix.set(0,3,0);				rotation_matrix.set(1,3,0);				rotation_matrix.set(2,3,0);				rotation_matrix.set(3,3,1);	
-
-	// point_matrix = matrix_product(rotation_matrix,point_matrix);
-
 	p = devectorize_point(point_matrix);
 	return p;
 }

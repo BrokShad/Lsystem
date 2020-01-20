@@ -8,8 +8,6 @@
 
 /* **** début de la partie boutons et IHM **** */
 
-static float K = 0;
-
 void verif_mesh_vertices(MyMesh *_mesh)
 {
     for(int i = 0 ; i < _mesh->n_vertices(); i++)
@@ -18,9 +16,7 @@ void verif_mesh_vertices(MyMesh *_mesh)
     }
 }
 
-
-// exemple pour construire un mesh face par face
-void MainWindow::on_pushButton_generer_clicked()
+void MainWindow::generer_mesh()
 {
     MyMesh *new_mesh = new MyMesh();
 
@@ -91,6 +87,12 @@ void MainWindow::on_pushButton_generer_clicked()
       }
       */
 
+}
+
+// exemple pour construire un mesh face par face
+void MainWindow::on_pushButton_generer_clicked()
+{
+    generer_mesh();
 }
 
 /* **** fin de la partie boutons et IHM **** */
@@ -418,6 +420,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->lineEditF->setText(caseF);
     ui->lineEditL->setText(caseL);
     ui->lineEditS->setText(caseS);
+    generer();
 }
 
 MainWindow::~MainWindow()
@@ -562,7 +565,10 @@ void MainWindow::generer()
 
 
     // on affiche le maillage
-    displayMesh(&mesh);
+    //displayMesh(&mesh);
+
+
+    generer_mesh();
 }
 
 //Fonctions Frustum - Génération de maillage
@@ -760,6 +766,10 @@ void rotate_frustum(double angleX, double angleY, double angleZ, QVector<QVector
         p3D.y = point->y();
         p3D.z = point->z();
 
+//        qDebug() << "X " << p3D.x << endl;
+//        qDebug() << "Y " << p3D.y << endl;
+//        qDebug() << "Z " << p3D.z << endl;
+
         if(angleX != 0)
         {
             p3D = rotate_spherical_point(p3D, X_Axis, angleX);
@@ -888,8 +898,7 @@ void MainWindow::frustum_into_mesh(MyMesh* _mesh, float xA, float yA, float zA,
 
 
     rotate_frustum(0, aY, aZ, &frustum_points);
-    translate_frustum(K, 0, 0, &frustum_points);
-    K += 0.1f;
+    translate_frustum(xA, yA, zA, &frustum_points);
 
     QVector<MyMesh::VertexHandle> vertices_vec = points_into_mesh(_mesh, frustum_points);
 

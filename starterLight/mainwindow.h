@@ -91,6 +91,8 @@ public:
 private slots:
     void generer();
 
+    void generer_mesh();
+
     void on_pushButton_generer_clicked();
 
     void on_lineEditA_textEdited(const QString &arg1);
