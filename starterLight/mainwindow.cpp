@@ -133,6 +133,8 @@ QVector<int>* MainWindow::toMesh()
 {
     static int count = 0;
     static int parent;
+    static int push_count = 0;
+    static bool pop2 = false;
     QVector<int>* pairs = new QVector<int>();
     qDebug()<< "count " << VertIdList << endl;
 
@@ -153,19 +155,25 @@ QVector<int>* MainWindow::toMesh()
                 if(VertIdList.at(k-1).compare("[")==0)
                 {
                     parents.push(VertIdList.at(k).toInt());
-                    //qDebug() << "crochet ouvrant " <<parents << endl;
+                    push_count++;
                 }
 
                 else if(VertIdList.at(k-1).compare("]")==0)
                 {
                     parents.push(VertIdList.at(k).toInt());
+                    push_count++;
                 }
 
                 else if(VertIdList.at(k-1).compare("]")!=0 && VertIdList.at(k-1).compare("[")!=0)
                 {
                     if(!parents.empty())
+                    {
                         parents.pop();
+                        push_count--;
+                    }
+
                     parents.push(VertIdList.at(k).toInt());
+                    push_count++;
                     //qDebug() << "nombre " << parents << endl;
                 }
             }
@@ -175,8 +183,39 @@ QVector<int>* MainWindow::toMesh()
         else if(it->compare("]") == 0)
         {
             count--;
-            if(!parents.empty() && VertIdList.at(k-1).compare("]")!=0 && VertIdList.at(k-1).compare("[")!=0)
+
+            if(!parents.empty() && k>0 && VertIdList.at(k-1).compare("[")!=0 && VertIdList.at(k-1).compare("]")!=0)
+            {
+                push_count--;
                 parents.pop();
+            }
+
+            if(!parents.empty() && (pop2 == false) && VertIdList.at(k-1).compare("]")==0 && VertIdList.at(k-2).compare("]")==0)
+            {
+                pop2 = true;
+                parents.pop();
+                parents.pop();
+            }
+
+            else if(pop2 == true)
+            {
+                pop2 = false;
+            }
+
+/*
+            if(!parents.empty() && count == 1 && push_count > 1 && VertIdList.at(k-1).compare("]")!=0)
+            {
+                parents.pop();
+            }
+
+            if(!parents.empty() && count == 0)
+            {
+                if( push_count > 1 )
+                    parents.pop();
+
+                push_count = 0;
+            }
+            */
         }
 
         else
@@ -844,13 +883,13 @@ void MainWindow::frustum_into_mesh(MyMesh* _mesh, float xA, float yA, float zA,
 
     //qDebug() <<"high AB " << high_AB << endl;
 
-    QVector<QVector3D> frustum_points = parametric_frustum(xA, yA, zA, high_AB, radius, coef_radius, step_r, step_s, step_t);
+    QVector<QVector3D> frustum_points = parametric_frustum(0, 0, 0, high_AB, radius, coef_radius, step_r, step_s, step_t);
 
 
 
-    rotate_frustum(aX, aY, aZ, &frustum_points);
-    //translate_frustum(K, 0, 0, &frustum_points);
-    //K += 0.1f;
+    rotate_frustum(0, aY, aZ, &frustum_points);
+    translate_frustum(K, 0, 0, &frustum_points);
+    K += 0.1f;
 
     QVector<MyMesh::VertexHandle> vertices_vec = points_into_mesh(_mesh, frustum_points);
 
