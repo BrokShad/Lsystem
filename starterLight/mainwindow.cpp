@@ -5,10 +5,8 @@
 
 #include "matrix.cpp"
 
-
+static int K = 0;
 /* **** début de la partie boutons et IHM **** */
-
-static float K = 0;
 
 void verif_mesh_vertices(MyMesh *_mesh)
 {
@@ -18,9 +16,7 @@ void verif_mesh_vertices(MyMesh *_mesh)
     }
 }
 
-
-// exemple pour construire un mesh face par face
-void MainWindow::on_pushButton_generer_clicked()
+void MainWindow::generer_mesh()
 {
     MyMesh *new_mesh = new MyMesh();
 
@@ -63,7 +59,7 @@ void MainWindow::on_pushButton_generer_clicked()
                           0.05f, 1,
                           0.9f, 0.1f, 0.1f);
 
-        qDebug() << "From " << from[0] << ", " << from[1] << ", " << from[2] << endl;
+        //qDebug() << "From " << from[0] << ", " << from[1] << ", " << from[2] << endl;
         //qDebug() << "to " << to[0] << ", " << to[1] << ", " << to[2] << endl;
         //qDebug() << "frustum_into_mesh(new_mesh," << from[0]*10 << "," << from[1]*10 << "," << from[2]*10 << "," <<
                                             //to[0]*10 << "," << to[1]*10 <<"," << to[2]*10 << "," <<
@@ -77,7 +73,7 @@ void MainWindow::on_pushButton_generer_clicked()
     resetAllColorsAndThickness(new_mesh);
     displayMesh(new_mesh);
 
-    /*
+
     try
       {
         if ( !OpenMesh::IO::write_mesh(*new_mesh, "output.obj") )
@@ -89,8 +85,14 @@ void MainWindow::on_pushButton_generer_clicked()
       {
         qDebug() << x.what() << endl;
       }
-      */
 
+
+}
+
+// exemple pour construire un mesh face par face
+void MainWindow::on_pushButton_generer_clicked()
+{
+    generer_mesh();
 }
 
 /* **** fin de la partie boutons et IHM **** */
@@ -418,6 +420,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->lineEditF->setText(caseF);
     ui->lineEditL->setText(caseL);
     ui->lineEditS->setText(caseS);
+    generer();
 }
 
 MainWindow::~MainWindow()
@@ -562,7 +565,10 @@ void MainWindow::generer()
 
 
     // on affiche le maillage
-    displayMesh(&mesh);
+    //displayMesh(&mesh);
+
+
+    generer_mesh();
 }
 
 //Fonctions Frustum - Génération de maillage
@@ -716,7 +722,11 @@ float angleVVX(QVector3D from, QVector3D to)
 
     lateral.normalize();
     v.normalize();
-    return acos(QVector3D::dotProduct(lateral,v));
+
+    //if(v.y() >= 0 || v.z() >= 0)
+        return acos(QVector3D::dotProduct(lateral,v));
+
+    return -2*M_PI+acos(QVector3D::dotProduct(lateral,v));
 }
 
 float angleVVY(QVector3D from, QVector3D to)
@@ -726,7 +736,11 @@ float angleVVY(QVector3D from, QVector3D to)
 
     vertical.normalize();
     v.normalize();
-    return acos(QVector3D::dotProduct(vertical,v));
+
+    //if(v.x() >= 0 || v.z() >= 0)
+        return acos(QVector3D::dotProduct(vertical,v));
+
+    return -2*M_PI+acos(QVector3D::dotProduct(vertical,v));
 }
 
 
@@ -737,7 +751,11 @@ float angleVVZ(QVector3D from, QVector3D to)
 
     horizontal.normalize();
     v.normalize();
-    return acos(QVector3D::dotProduct(horizontal,v));
+
+    //if(v.x() >= 0 || v.y() >= 0)
+        return acos(QVector3D::dotProduct(horizontal,v));
+
+    return -2*M_PI+acos(QVector3D::dotProduct(horizontal,v));
 }
 
 void rotate_frustum(double angleX, double angleY, double angleZ, QVector<QVector3D> *frustum_points)
@@ -759,6 +777,10 @@ void rotate_frustum(double angleX, double angleY, double angleZ, QVector<QVector
         p3D.x = point->x();
         p3D.y = point->y();
         p3D.z = point->z();
+
+//        qDebug() << "X " << p3D.x << endl;
+//        qDebug() << "Y " << p3D.y << endl;
+//        qDebug() << "Z " << p3D.z << endl;
 
         if(angleX != 0)
         {
@@ -874,22 +896,23 @@ void MainWindow::frustum_into_mesh(MyMesh* _mesh, float xA, float yA, float zA,
     float aZ = acos((xA * xB + zA * zB)/(sqrt((pow(xA,2)+pow(zA,2))*(pow(xB,2)+pow(zB,2)))))*2*M_PI;
     float aY = acos((xA * xB + yA * yB)/(sqrt((pow(xA,2)+pow(yA,2))*(pow(xB,2)+pow(yB,2)))))*2*M_PI;
 
-    aY = angleDiedreY(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
-    aZ = angleDiedreZ(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
-    float aX = angleDiedreX(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
+    aY = angleVVY(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
+    aZ = angleVVZ(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
+    float aX = angleVVX(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
 
     float high_AB = sqrt(x*x + y*y + z*z);
 
     //qDebug() <<"high AB " << high_AB << endl;
 
-    QVector<QVector3D> frustum_points = parametric_frustum(xA, yA, zA, high_AB, radius, coef_radius, step_r, step_s, step_t);
+    QVector<QVector3D> frustum_points = parametric_frustum(0, 0, 0, high_AB, radius, coef_radius, step_r, step_s, step_t);
 
 
 
-    rotate_frustum(0, aY, aZ, &frustum_points);
-    rotate_frustum(aX, 0, 0, &frustum_points);
-    translate_frustum(0, 0, 0, &frustum_points);
-    //K += 0.1f;
+    rotate_frustum(aZ, 0, 0, &frustum_points);
+    //rotate_frustum(aZ, 0, aZ, &frustum_points);
+
+    translate_frustum(xA, yA, zA, &frustum_points);
+    K += 0.1f;
 
     QVector<MyMesh::VertexHandle> vertices_vec = points_into_mesh(_mesh, frustum_points);
 

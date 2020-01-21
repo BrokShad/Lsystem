@@ -48,7 +48,7 @@
        <item>
         <widget class="QPushButton" name="pushButton_generer">
          <property name="text">
-          <string>Générer mesh</string>
+          <string>Exporter mesh</string>
          </property>
         </widget>
        </item>
