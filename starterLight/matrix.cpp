@@ -120,7 +120,7 @@ Point3D devectorize_point(Matrix m)
 
 Point3D rotate_spherical_point(Point3D p, Axe axe, double angle)
 {
-	angle *= M_PI / 180;
+
 	Matrix point_matrix = vectorize_point(p);
 	Matrix rotation_matrix = Matrix(4,4);
 	switch(axe)
@@ -167,7 +167,7 @@ Point3D rotate_spherical_point(Point3D p, Axe axe, double angle)
 	return p;
 }
 
-Point3D translate_point(Point3D p, int tx, int ty, int tz)
+Point3D translate_point(Point3D p, double tx, double ty, double tz)
 {
 	Matrix point_matrix = vectorize_point(p);
 	Matrix translation_matrix = Matrix(4,4);

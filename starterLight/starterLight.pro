@@ -42,12 +42,14 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     meshviewerwidget.cpp \
-    turtle.cpp
+    turtle.cpp \
+    matrix.cpp \
+
 
 HEADERS += \
         mainwindow.h \
     meshviewerwidget.h \
-    turtle.h
+    turtle.h \
 
 FORMS += \
         mainwindow.ui
