@@ -55,7 +55,7 @@ void MainWindow::generer_mesh()
                           from[0] , from[1], from[2] ,
                           to[0]  ,  to[1] ,  to[2]  ,
                           0.05f, 1,
-                          0.9f, 0.1f, 0.1f);
+                          0.1f, 0.099f, 0.1f);
 
         //qDebug() << "From " << from[0] << ", " << from[1] << ", " << from[2] << endl;
         //qDebug() << "to " << to[0] << ", " << to[1] << ", " << to[2] << endl;
@@ -71,26 +71,14 @@ void MainWindow::generer_mesh()
     resetAllColorsAndThickness(new_mesh);
     displayMesh(new_mesh);
 
-
-    try
-      {
-        if ( !OpenMesh::IO::write_mesh(*new_mesh, "meshtree.obj") )
-        {
-          qDebug()<< "Cannot write mesh to file 'output.obj'" << endl;
-        }
-      }
-      catch( std::exception& x )
-      {
-        qDebug() << x.what() << endl;
-      }
-
-
 }
+
+
 
 // exemple pour construire un mesh face par face
 void MainWindow::on_pushButton_generer_clicked()
 {
-    generer_mesh();
+    exportMesh();
 }
 
 /* **** fin de la partie boutons et IHM **** */
@@ -226,6 +214,63 @@ QVector<int>* MainWindow::toMesh()
         k++;
     }
     return pairs;
+}
+
+void MainWindow::exportMesh()
+{
+        MyMesh *new_mesh = new MyMesh();
+
+        // on construit une liste de paire de sommets -1 étant l'origine du repère
+        QVector<int> *pairs = toMesh();
+
+    //    qDebug() << *pairs << endl;
+        //qDebug() << pairs->count() << endl;
+
+        for(int i = 1; i < pairs->count(); i +=2)
+        {
+            MyMesh::Point from, to;
+
+            int index_from = pairs->data()[i-1];
+            int index_to = pairs->data()[i];
+            //qDebug() << index_from << ", " << index_to << ",";
+            if(index_from < 0)
+            {
+                from = MyMesh::Point(0, 0, 0);
+            }
+            else
+            {
+                from = mesh.point(VertexHandle(index_from));
+            }
+
+            if(index_to < 0)
+            {
+                to = MyMesh::Point(0, 0, 0);
+            }
+
+            else
+            {
+                to = mesh.point(VertexHandle(index_to));
+            }
+
+            frustum_into_mesh(new_mesh,
+                              from[0] , from[1], from[2] ,
+                              to[0]  ,  to[1] ,  to[2]  ,
+                              0.05f, 1,
+                              0.1f, 0.099f, 0.1f);
+        }
+
+        try
+          {
+            if ( !OpenMesh::IO::write_mesh(*new_mesh, "meshtree.obj") )
+            {
+              qDebug()<< "Cannot write mesh to file 'output.obj'" << endl;
+            }
+          }
+          catch( std::exception& x )
+          {
+            qDebug() << x.what() << endl;
+          }
+
 }
 
 // charge un objet MyMesh dans l'environnement OpenGL
@@ -721,39 +766,47 @@ float angleVVX(QVector3D from, QVector3D to)
     lateral.normalize();
     v.normalize();
 
-    //if(v.y() >= 0 || v.z() >= 0)
-        return acos(QVector3D::dotProduct(lateral,v));
+    QVector3D Vn(0, 0, 1);
 
-    return -2*M_PI+acos(QVector3D::dotProduct(lateral,v));
+    float test = QVector3D::dotProduct(lateral,v);
+    QVector3D normal = QVector3D::normal(lateral,v);
+    float angle = acos(test);
+    if (QVector3D::dotProduct(Vn,normal)<0)
+        angle = -angle;
+
+    return angle;
 }
 
 float angleVVY(QVector3D from, QVector3D to)
 {
     QVector3D vertical(0, 1, 0);
+    QVector3D Vn(1, 0, 0);
     QVector3D v(to-from);
 
-    vertical.normalize();
-    v.normalize();
-
-    //if(v.x() >= 0 || v.z() >= 0)
-        return acos(QVector3D::dotProduct(vertical,v));
-
-    return -2*M_PI+acos(QVector3D::dotProduct(vertical,v));
+    float test = QVector3D::dotProduct(vertical,v);
+    QVector3D normal = QVector3D::normal(vertical,v);
+    float angle = acos(test);
+    if (QVector3D::dotProduct(Vn,normal)<0)
+        angle = -angle;
+    return angle;
 }
 
 
 float angleVVZ(QVector3D from, QVector3D to)
 {
     QVector3D horizontal(0, 0, 1);
+    QVector3D Vn(0, 1, 0);
     QVector3D v(to-from);
 
     horizontal.normalize();
     v.normalize();
 
-    //if(v.x() >= 0 || v.y() >= 0)
-        return acos(QVector3D::dotProduct(horizontal,v));
-
-    return -2*M_PI+acos(QVector3D::dotProduct(horizontal,v));
+    float test = QVector3D::dotProduct(horizontal,v);
+    QVector3D normal = QVector3D::normal(horizontal,v);
+    float angle = acos(test);
+    if (QVector3D::dotProduct(Vn,normal)<0)
+        angle = -angle;
+    return angle;
 }
 
 void rotate_frustum(double angleX, double angleY, double angleZ, QVector<QVector3D> *frustum_points)
@@ -904,6 +957,8 @@ void MainWindow::frustum_into_mesh(MyMesh* _mesh, float xA, float yA, float zA,
     QVector<QVector3D> frustum_points = parametric_frustum(0, 0, 0, high_AB, radius, coef_radius, step_r, step_s, step_t);
 
     rotate_frustum(aY-(M_PI/2), aZ, 0, &frustum_points);
+
+//    rotate_frustum(aY-(M_PI/2), aZ, 0, &frustum_points);
     translate_frustum(xA, yA, zA, &frustum_points);
 
     QVector<MyMesh::VertexHandle> vertices_vec = points_into_mesh(_mesh, frustum_points);

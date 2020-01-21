@@ -54,7 +54,7 @@ public:
     float dist = 1.0;
     int dL = 1;
     int w = 5;
-
+    float trans;
     bool montrerMesh = false;
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -64,6 +64,7 @@ public:
 
     QVector<QString> VertIdList;
     QVector<int>* toMesh();
+    void exportMesh();
 
     // VertIdList est le Qvector des id de chaque points du mesh.
     // les fils (comme dans la string de generation) sont séparés par des "[]"
