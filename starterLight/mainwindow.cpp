@@ -728,22 +728,33 @@ float angleVVX(QVector3D from, QVector3D to)
 float angleVVY(QVector3D from, QVector3D to)
 {
     QVector3D vertical(0, 1, 0);
+    QVector3D Vn(1, 0, 0);
     QVector3D v(to-from);
 
-    vertical.normalize();
-    v.normalize();
-    return acos(QVector3D::dotProduct(vertical,v));
+
+    float test = QVector3D::dotProduct(vertical,v);
+    QVector3D normal = QVector3D::normal(vertical,v);
+    float angle = acos(test);
+    if (QVector3D::dotProduct(Vn,normal)<0)
+        angle = -angle;
+    return angle;
 }
 
 
 float angleVVZ(QVector3D from, QVector3D to)
 {
     QVector3D horizontal(0, 0, 1);
+    QVector3D Vn(0, 1, 0);
     QVector3D v(to-from);
 
     horizontal.normalize();
     v.normalize();
-    return acos(QVector3D::dotProduct(horizontal,v));
+    float test = QVector3D::dotProduct(horizontal,v);
+    QVector3D normal = QVector3D::normal(horizontal,v);
+    float angle = acos(test);
+    if (QVector3D::dotProduct(Vn,normal)<0)
+        angle = -angle;
+    return angle;
 }
 
 void rotate_frustum(double angleX, double angleY, double angleZ, QVector<QVector3D> *frustum_points)
@@ -895,6 +906,8 @@ void MainWindow::frustum_into_mesh(MyMesh* _mesh, float xA, float yA, float zA,
     QVector<QVector3D> frustum_points = parametric_frustum(0, 0, 0, high_AB, radius, coef_radius, step_r, step_s, step_t);
 
     rotate_frustum(aY-(M_PI/2), aZ, 0, &frustum_points);
+
+//    rotate_frustum(aY-(M_PI/2), aZ, 0, &frustum_points);
     translate_frustum(xA, yA, zA, &frustum_points);
 
     QVector<MyMesh::VertexHandle> vertices_vec = points_into_mesh(_mesh, frustum_points);

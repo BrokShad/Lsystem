@@ -53,7 +53,7 @@ public:
     float dist = 1.0;
     int dL = 1;
     int w = 5;
-
+    float trans;
     bool montrerMesh = false;
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
