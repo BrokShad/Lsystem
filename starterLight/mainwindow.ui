@@ -113,6 +113,13 @@
         </layout>
        </item>
        <item>
+        <widget class="QRadioButton" name="radioButton">
+         <property name="text">
+          <string>Montrer le mesh</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QLabel" name="iterationsLabel">
          <property name="maximumSize">
           <size>

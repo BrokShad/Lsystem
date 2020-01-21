@@ -54,6 +54,8 @@ public:
     float dist = 1.0;
     int dL = 1;
     int w = 5;
+
+    bool montrerMesh = false;
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     QString generer_mot(QString source);
@@ -119,6 +121,8 @@ private slots:
     void on_dlSlider_valueChanged(int value);
 
     void on_wSlider_valueChanged(int value);
+
+    void on_radioButton_clicked(bool checked);
 
 private:
 
