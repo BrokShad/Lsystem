@@ -8,8 +8,6 @@
 
 /* **** début de la partie boutons et IHM **** */
 
-static float K = 0;
-
 void verif_mesh_vertices(MyMesh *_mesh)
 {
     for(int i = 0 ; i < _mesh->n_vertices(); i++)
@@ -18,9 +16,7 @@ void verif_mesh_vertices(MyMesh *_mesh)
     }
 }
 
-
-// exemple pour construire un mesh face par face
-void MainWindow::on_pushButton_generer_clicked()
+void MainWindow::generer_mesh()
 {
     MyMesh *new_mesh = new MyMesh();
 
@@ -90,6 +86,12 @@ void MainWindow::on_pushButton_generer_clicked()
       }
       */
 
+}
+
+// exemple pour construire un mesh face par face
+void MainWindow::on_pushButton_generer_clicked()
+{
+    generer_mesh();
 }
 
 /* **** fin de la partie boutons et IHM **** */
@@ -417,6 +419,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->lineEditF->setText(caseF);
     ui->lineEditL->setText(caseL);
     ui->lineEditS->setText(caseS);
+    generer();
 }
 
 MainWindow::~MainWindow()
@@ -561,7 +564,11 @@ void MainWindow::generer()
 
 
     // on affiche le maillage
-    displayMesh(&mesh);
+    if (!montrerMesh)
+        displayMesh(&mesh);
+    else
+        generer_mesh();
+
 }
 
 //Fonctions Frustum - Génération de maillage
@@ -759,6 +766,10 @@ void rotate_frustum(double angleX, double angleY, double angleZ, QVector<QVector
         p3D.y = point->y();
         p3D.z = point->z();
 
+//        qDebug() << "X " << p3D.x << endl;
+//        qDebug() << "Y " << p3D.y << endl;
+//        qDebug() << "Z " << p3D.z << endl;
+
         if(angleX != 0)
         {
             p3D = rotate_spherical_point(p3D, X_Axis, angleX);
@@ -872,11 +883,8 @@ void MainWindow::frustum_into_mesh(MyMesh* _mesh, float xA, float yA, float zA,
 //    float angleY = arcos((xA * xB + zA * zB)/(sqrt((pow(xA,2)+pow(zA,2))*(pow(xB,2)+pow(zB,2)))));
 //    float angleZ = arcos((xA * xB + yA * yB)/(sqrt((pow(xA,2)+pow(yA,2))*(pow(xB,2)+pow(yB,2)))));
 
-    float aZ = acos((xA * xB + zA * zB)/(sqrt((pow(xA,2)+pow(zA,2))*(pow(xB,2)+pow(zB,2)))))*2*M_PI;
-    float aY = acos((xA * xB + yA * yB)/(sqrt((pow(xA,2)+pow(yA,2))*(pow(xB,2)+pow(yB,2)))))*2*M_PI;
-
-    aY = angleVVY(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
-    aZ = angleVVZ(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
+    float aY = angleVVY(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
+    float aZ = angleVVZ(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
     float aX = angleVVX(QVector3D(xA, yA, zA), QVector3D(xB, yB, zB));
 
 
@@ -886,18 +894,8 @@ void MainWindow::frustum_into_mesh(MyMesh* _mesh, float xA, float yA, float zA,
 
     QVector<QVector3D> frustum_points = parametric_frustum(0, 0, 0, high_AB, radius, coef_radius, step_r, step_s, step_t);
 
-    if (aZ > M_PI)
-        qDebug() << aZ;
-
-//        translate_frustum(-4, 0, 0, &frustum_points);
-
-//        aZ -= 3*M_PI/2;
-//    rotate_frustum(0, aZ, 0, &frustum_points);
-//    rotate_frustum(, 0, 0, &frustum_points);
-//    rotate_frustum(aY-(M_PI/2), 0, 0, &frustum_points);
-//    rotate_frustum(0, 0, , &frustum_points);
+    rotate_frustum(aY-(M_PI/2), aZ, 0, &frustum_points);
     translate_frustum(xA, yA, zA, &frustum_points);
-
 
     QVector<MyMesh::VertexHandle> vertices_vec = points_into_mesh(_mesh, frustum_points);
 
@@ -954,3 +952,9 @@ void motToMesh();
 
 
 
+
+void MainWindow::on_radioButton_clicked(bool checked)
+{
+    montrerMesh = checked;
+    generer();
+}
